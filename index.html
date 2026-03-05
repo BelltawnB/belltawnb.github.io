@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Burgen Belltawn — MEL Specialist & AI Tools Builder</title>
+<title>Burgen Belltawn — MEL Specialist · Data Systems Strategist · AI Tools Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Split Line BB Favicon (inline SVG as data URI) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23FDF5F0' stroke='%23C67B5C' stroke-width='2.5'/%3E%3Crect x='30.5' y='10' width='3' height='44' rx='1.5' fill='%23C67B5C'/%3E%3Ctext x='10' y='43' font-family='Georgia,serif' font-size='26' font-weight='bold' fill='%233D2B22'%3EB%3C/text%3E%3Ctext x='36' y='43' font-family='Georgia,serif' font-size='26' font-weight='bold' fill='%233D2B22'%3EB%3C/text%3E%3C/svg%3E">
+
 <style>
 :root {
   --terra: #C67B5C;
@@ -25,12 +29,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 80px;
-}
-
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 body {
   font-family: 'Outfit', sans-serif;
   color: var(--ink);
@@ -40,6 +39,7 @@ body {
   line-height: 1.7;
 }
 
+/* ── NAV ── */
 nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -53,28 +53,40 @@ nav {
   border-bottom: 1px solid rgba(61, 43, 34, 0.04);
   transition: all 0.3s ease;
 }
-
 nav.scrolled {
   padding: 0.7rem 2rem;
   box-shadow: 0 4px 30px rgba(61, 43, 34, 0.06);
 }
-
 .nav-logo {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.3rem;
-  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   text-decoration: none;
-  letter-spacing: -0.02em;
 }
-
-.nav-logo span { color: var(--terra); }
-
+.nav-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.nav-logo-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.nav-logo-surname {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--terra);
+  text-transform: uppercase;
+}
 .nav-links {
   display: flex;
   gap: 2rem;
   list-style: none;
 }
-
 .nav-links a {
   text-decoration: none;
   color: var(--ink-soft);
@@ -84,7 +96,6 @@ nav.scrolled {
   transition: color 0.3s;
   position: relative;
 }
-
 .nav-links a::after {
   content: '';
   position: absolute;
@@ -94,10 +105,8 @@ nav.scrolled {
   border-radius: 2px;
   transition: width 0.3s ease;
 }
-
 .nav-links a:hover { color: var(--ink); }
 .nav-links a:hover::after { width: 100%; }
-
 .hamburger {
   display: none;
   flex-direction: column;
@@ -107,7 +116,6 @@ nav.scrolled {
   border: none;
   padding: 4px;
 }
-
 .hamburger span {
   width: 24px; height: 2px;
   background: var(--ink);
@@ -115,6 +123,14 @@ nav.scrolled {
   transition: all 0.3s;
 }
 
+/* ── CONVERGENCE LOGO SVG ── */
+.convergence-logo {
+  width: 38px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+/* ── HERO ── */
 .hero {
   min-height: 100vh;
   display: flex;
@@ -124,49 +140,21 @@ nav.scrolled {
   padding: 6rem 2rem 4rem;
   overflow: hidden;
 }
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
 .glow-orb {
   position: absolute;
   border-radius: 50%;
   filter: blur(90px);
   animation: orbFloat 14s ease-in-out infinite;
 }
-
-.glow-orb-1 {
-  top: -80px; right: -40px;
-  width: 450px; height: 450px;
-  background: var(--terra-light);
-  opacity: 0.35;
-}
-
-.glow-orb-2 {
-  bottom: -60px; left: -80px;
-  width: 300px; height: 300px;
-  background: var(--sand);
-  opacity: 0.4;
-  animation-delay: -5s;
-}
-
-.glow-orb-3 {
-  top: 45%; left: 55%;
-  width: 180px; height: 180px;
-  background: var(--sage-light);
-  opacity: 0.35;
-  animation-delay: -9s;
-}
-
+.glow-orb-1 { top: -80px; right: -40px; width: 450px; height: 450px; background: var(--terra-light); opacity: 0.35; }
+.glow-orb-2 { bottom: -60px; left: -80px; width: 300px; height: 300px; background: var(--sand); opacity: 0.4; animation-delay: -5s; }
+.glow-orb-3 { top: 45%; left: 55%; width: 180px; height: 180px; background: var(--sage-light); opacity: 0.35; animation-delay: -9s; }
 @keyframes orbFloat {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33% { transform: translate(15px, -12px) scale(1.04); }
   66% { transform: translate(-8px, 8px) scale(0.97); }
 }
-
 .dot-pattern {
   position: absolute;
   bottom: 0; left: 0;
@@ -175,14 +163,12 @@ nav.scrolled {
   background-size: 48px 48px;
   opacity: 0.04;
 }
-
 .hero-content {
   position: relative;
   z-index: 1;
   max-width: 800px;
   text-align: center;
 }
-
 .hero-tag {
   display: inline-block;
   background: var(--terra-glow);
@@ -197,7 +183,6 @@ nav.scrolled {
   border: 1px solid rgba(198, 123, 92, 0.12);
   animation: fadeUp 0.8s ease both;
 }
-
 .hero h1 {
   font-family: 'DM Serif Display', serif;
   font-size: clamp(2.8rem, 6vw, 4.5rem);
@@ -207,12 +192,10 @@ nav.scrolled {
   letter-spacing: -0.03em;
   animation: fadeUp 0.8s ease 0.15s both;
 }
-
 .hero h1 .accent {
   color: var(--terra);
   position: relative;
 }
-
 .hero h1 .accent::after {
   content: '';
   position: absolute;
@@ -223,7 +206,6 @@ nav.scrolled {
   z-index: -1;
   border-radius: 4px;
 }
-
 .hero-sub {
   font-size: 1.15rem;
   color: var(--ink-soft);
@@ -232,7 +214,6 @@ nav.scrolled {
   line-height: 1.8;
   animation: fadeUp 0.8s ease 0.3s both;
 }
-
 .hero-cta {
   display: flex;
   gap: 1rem;
@@ -240,7 +221,6 @@ nav.scrolled {
   flex-wrap: wrap;
   animation: fadeUp 0.8s ease 0.45s both;
 }
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -255,43 +235,18 @@ nav.scrolled {
   transition: all 0.3s ease;
   border: none;
 }
-
-.btn-primary {
-  background: var(--terra);
-  color: var(--white);
-  box-shadow: 0 4px 20px rgba(198, 123, 92, 0.25);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(198, 123, 92, 0.35);
-  background: var(--terra-deep);
-}
-
-.btn-outline {
-  background: transparent;
-  color: var(--ink);
-  border: 1.5px solid rgba(42, 34, 32, 0.12);
-}
-
-.btn-outline:hover {
-  border-color: var(--terra);
-  color: var(--terra);
-  transform: translateY(-2px);
-}
-
+.btn-primary { background: var(--terra); color: var(--white); box-shadow: 0 4px 20px rgba(198, 123, 92, 0.25); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(198, 123, 92, 0.35); background: var(--terra-deep); }
+.btn-outline { background: transparent; color: var(--ink); border: 1.5px solid rgba(42, 34, 32, 0.12); }
+.btn-outline:hover { border-color: var(--terra); color: var(--terra); transform: translateY(-2px); }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ── SECTIONS ── */
 section { padding: 6rem 2rem; }
-
-.section-header {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
+.section-header { text-align: center; margin-bottom: 4rem; }
 .section-tag {
   display: inline-block;
   font-size: 0.75rem;
@@ -301,14 +256,12 @@ section { padding: 6rem 2rem; }
   color: var(--terra);
   margin-bottom: 0.8rem;
 }
-
 .section-header h2 {
   font-family: 'DM Serif Display', serif;
   font-size: clamp(2rem, 4vw, 2.8rem);
   letter-spacing: -0.02em;
   color: var(--ink);
 }
-
 .section-header p {
   color: var(--ink-soft);
   margin-top: 1rem;
@@ -317,8 +270,8 @@ section { padding: 6rem 2rem; }
   margin-right: auto;
 }
 
+/* ── ABOUT ── */
 .about { background: var(--white); }
-
 .about-grid {
   max-width: 1000px;
   margin: 0 auto;
@@ -327,7 +280,6 @@ section { padding: 6rem 2rem; }
   gap: 4rem;
   align-items: center;
 }
-
 .about-card {
   background: linear-gradient(145deg, var(--terra-glow), var(--cream));
   border-radius: 24px;
@@ -337,7 +289,6 @@ section { padding: 6rem 2rem; }
   overflow: hidden;
   border: 1px solid rgba(198, 123, 92, 0.1);
 }
-
 .about-card::before {
   content: '';
   position: absolute;
@@ -347,7 +298,6 @@ section { padding: 6rem 2rem; }
   background: var(--terra);
   opacity: 0.08;
 }
-
 .about-card::after {
   content: '';
   position: absolute;
@@ -357,7 +307,6 @@ section { padding: 6rem 2rem; }
   background: var(--sage);
   opacity: 0.08;
 }
-
 .about-initials {
   font-family: 'DM Serif Display', serif;
   font-size: 4rem;
@@ -365,7 +314,6 @@ section { padding: 6rem 2rem; }
   margin-bottom: 1rem;
   line-height: 1;
 }
-
 .about-card .location {
   font-size: 0.85rem;
   color: var(--ink-soft);
@@ -374,56 +322,13 @@ section { padding: 6rem 2rem; }
   justify-content: center;
   gap: 0.4rem;
 }
-
-.stat-row {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.stat {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 16px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.stat-num {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.8rem;
-  color: var(--ink);
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 0.7rem;
-  color: var(--ink-soft);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 0.3rem;
-}
-
-.about-text h3 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
-}
-
-.about-text p {
-  color: var(--ink-soft);
-  margin-bottom: 1rem;
-}
-
-.skill-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-}
-
+.stat-row { display: flex; gap: 1rem; margin-top: 1.5rem; }
+.stat { flex: 1; background: rgba(255,255,255,0.75); border-radius: 16px; padding: 1rem; text-align: center; }
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--ink); line-height: 1; }
+.stat-label { font-size: 0.7rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.3rem; }
+.about-text h3 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 1rem; letter-spacing: -0.02em; line-height: 1.3; }
+.about-text p { color: var(--ink-soft); margin-bottom: 1rem; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
 .skill-tag {
   background: var(--terra-glow);
   color: var(--bark);
@@ -434,64 +339,118 @@ section { padding: 6rem 2rem; }
   border: 1px solid rgba(198, 123, 92, 0.08);
   transition: all 0.3s;
 }
+.skill-tag:hover { background: var(--terra); color: var(--white); border-color: var(--terra); transform: translateY(-1px); }
 
-.skill-tag:hover {
-  background: var(--terra);
-  color: var(--white);
-  border-color: var(--terra);
-  transform: translateY(-1px);
-}
-
-.consortium { background: var(--cream); }
-
-.consortium-inner {
-  max-width: 800px;
+/* ── SPECIALTIES (expandable cards) ── */
+.specialties { background: var(--cream); }
+.specialties-grid {
+  max-width: 900px;
   margin: 0 auto;
-}
-
-.consortium-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 1.2rem;
 }
-
-.cons-card {
+.spec-card {
   background: var(--white);
   border-radius: 20px;
-  padding: 1.8rem;
-  border: 1px solid rgba(42, 34, 32, 0.04);
-  transition: all 0.3s;
+  border: 1px solid rgba(42, 34, 32, 0.05);
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.3s;
 }
-
-.cons-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(61, 43, 34, 0.06);
+.spec-card:hover {
+  box-shadow: 0 10px 35px rgba(61, 43, 34, 0.07);
+  transform: translateY(-2px);
 }
-
-.cons-card h3 {
+.spec-card.open {
+  border-color: rgba(198, 123, 92, 0.2);
+}
+.spec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.6rem 1.8rem;
+  cursor: pointer;
+  user-select: none;
+  gap: 1rem;
+}
+.spec-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.spec-icon {
+  font-size: 1.4rem;
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.spec-icon.c1 { background: var(--terra-glow); }
+.spec-icon.c2 { background: var(--sage-light); }
+.spec-icon.c3 { background: var(--cream-dark); }
+.spec-icon.c4 { background: rgba(122, 158, 135, 0.12); }
+.spec-title-group h3 {
   font-family: 'DM Serif Display', serif;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  color: var(--ink);
+  line-height: 1.2;
 }
-
-.cons-card p {
+.spec-tagline {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-top: 0.2rem;
+  line-height: 1.4;
+}
+.spec-chevron {
+  width: 20px; height: 20px;
+  color: var(--terra);
+  flex-shrink: 0;
+  transition: transform 0.35s ease;
+}
+.spec-card.open .spec-chevron { transform: rotate(180deg); }
+.spec-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s ease, padding 0.3s ease;
+}
+.spec-card.open .spec-body { max-height: 600px; }
+.spec-body-inner {
+  padding: 0 1.8rem 1.8rem;
+  border-top: 1px solid rgba(42, 34, 32, 0.04);
+  padding-top: 1.2rem;
+}
+.spec-body-inner p {
   font-size: 0.88rem;
   color: var(--ink-soft);
-  line-height: 1.7;
-}
-
-.cons-icon {
-  font-size: 1.4rem;
+  line-height: 1.8;
   margin-bottom: 0.8rem;
-  display: block;
 }
-
-.tools {
-  background: var(--white);
+.spec-body-inner p:last-child { margin-bottom: 0; }
+.spec-bullets {
+  list-style: none;
+  margin-top: 0.8rem;
+}
+.spec-bullets li {
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+  padding: 0.3rem 0;
+  padding-left: 1.2rem;
   position: relative;
+  line-height: 1.6;
+}
+.spec-bullets li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--terra);
+  font-size: 0.75rem;
+  top: 0.4rem;
 }
 
+/* ── TOOLS ── */
+.tools { background: var(--cream); }
 .tools-grid {
   max-width: 900px;
   margin: 0 auto;
@@ -499,9 +458,8 @@ section { padding: 6rem 2rem; }
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
 }
-
 .tool-card {
-  background: var(--cream);
+  background: var(--white);
   border-radius: 20px;
   padding: 2rem;
   position: relative;
@@ -509,17 +467,11 @@ section { padding: 6rem 2rem; }
   border: 1px solid rgba(42, 34, 32, 0.04);
   transition: all 0.4s ease;
 }
-
-.tool-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 50px rgba(61, 43, 34, 0.07);
-}
-
+.tool-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(61, 43, 34, 0.07); }
 .tool-card.featured {
   border: 1.5px solid var(--terra-light);
-  background: linear-gradient(to bottom right, var(--cream), var(--terra-glow));
+  background: linear-gradient(to bottom right, var(--white), var(--terra-glow));
 }
-
 .tool-card.featured::before {
   content: '';
   position: absolute;
@@ -528,7 +480,6 @@ section { padding: 6rem 2rem; }
   background: radial-gradient(circle at top right, var(--terra-light), transparent);
   opacity: 0.4;
 }
-
 .tool-icon {
   width: 52px; height: 52px;
   border-radius: 14px;
@@ -538,23 +489,11 @@ section { padding: 6rem 2rem; }
   font-size: 1.5rem;
   margin-bottom: 1.2rem;
 }
-
 .tool-icon.terra-bg { background: var(--terra-glow); }
 .tool-icon.sage-bg { background: var(--sage-light); }
 .tool-icon.sand-bg { background: var(--cream-dark); }
-
-.tool-card h3 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.2rem;
-  margin-bottom: 0.6rem;
-}
-
-.tool-card p {
-  font-size: 0.9rem;
-  color: var(--ink-soft);
-  line-height: 1.7;
-}
-
+.tool-card h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 0.6rem; }
+.tool-card p { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.7; }
 .tool-badge {
   display: inline-block;
   margin-top: 1rem;
@@ -565,41 +504,44 @@ section { padding: 6rem 2rem; }
   padding: 0.3rem 0.8rem;
   border-radius: 100px;
 }
-
-.tool-badge.soon {
-  background: var(--cream-dark);
-  color: var(--ink-soft);
+.tool-badge.soon { background: var(--cream-dark); color: var(--ink-soft); }
+.tool-badge.first { background: var(--terra-glow); color: var(--terra); border: 1px solid rgba(198, 123, 92, 0.15); }
+.tool-badge.live {
+  background: var(--sage-light);
+  color: var(--sage);
+  border: 1px solid rgba(122, 158, 135, 0.25);
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
 }
-
-.tool-badge.first {
-  background: var(--terra-glow);
-  color: var(--terra);
-  border: 1px solid rgba(198, 123, 92, 0.15);
+.tool-badge.live:hover {
+  background: var(--sage);
+  color: var(--white);
+  border-color: var(--sage);
 }
-
-.experience { background: var(--cream); }
-
-.timeline {
-  max-width: 750px;
-  margin: 0 auto;
-  position: relative;
+.tool-badge.live {
+  background: var(--terra);
+  color: var(--white);
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
 }
-
+.tool-badge.live:hover {
+  background: var(--terra-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(198, 123, 92, 0.3);
+}
+/* ── EXPERIENCE ── */
+.experience { background: var(--white); }
+.timeline { max-width: 750px; margin: 0 auto; position: relative; }
 .timeline::before {
   content: '';
   position: absolute;
-  left: 24px;
-  top: 0; bottom: 0;
+  left: 24px; top: 0; bottom: 0;
   width: 2px;
   background: linear-gradient(to bottom, var(--terra), var(--terra-light), transparent);
 }
-
-.tl-item {
-  padding-left: 64px;
-  padding-bottom: 2.5rem;
-  position: relative;
-}
-
+.tl-item { padding-left: 64px; padding-bottom: 2.5rem; position: relative; }
 .tl-dot {
   position: absolute;
   left: 16px; top: 4px;
@@ -608,64 +550,15 @@ section { padding: 6rem 2rem; }
   background: var(--terra-glow);
   border: 3px solid var(--terra);
 }
-
-.tl-date {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--terra);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 0.3rem;
-}
-
-.tl-item h3 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.15rem;
-  margin-bottom: 0.15rem;
-}
-
-.tl-org {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  margin-bottom: 0.5rem;
-}
-
-.tl-desc {
-  font-size: 0.88rem;
-  color: var(--ink-soft);
-  line-height: 1.7;
-}
-
-.tl-sectors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.6rem;
-}
-
-.tl-sector {
-  font-size: 0.68rem;
-  background: var(--terra-glow);
-  color: var(--bark);
-  padding: 0.2rem 0.6rem;
-  border-radius: 100px;
-  font-weight: 500;
-}
-
+.tl-date { font-size: 0.75rem; font-weight: 500; color: var(--terra); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+.tl-item h3 { font-family: 'DM Serif Display', serif; font-size: 1.15rem; margin-bottom: 0.15rem; }
+.tl-org { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.tl-desc { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.7; }
+.tl-sectors { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.tl-sector { font-size: 0.68rem; background: var(--terra-glow); color: var(--bark); padding: 0.2rem 0.6rem; border-radius: 100px; font-weight: 500; }
 .tl-hidden { display: none; }
-
-.tl-hidden.visible {
-  display: block;
-  animation: fadeUp 0.6s ease both;
-}
-
-.show-more-wrap {
-  text-align: center;
-  margin-top: 1rem;
-  position: relative;
-  z-index: 1;
-}
-
+.tl-hidden.visible { display: block; animation: fadeUp 0.6s ease both; }
+.show-more-wrap { text-align: center; margin-top: 1rem; position: relative; z-index: 1; }
 .show-more-btn {
   display: inline-flex;
   align-items: center;
@@ -681,107 +574,27 @@ section { padding: 6rem 2rem; }
   cursor: pointer;
   transition: all 0.3s;
 }
+.show-more-btn:hover { background: var(--terra); color: var(--white); border-color: var(--terra); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(198, 123, 92, 0.2); }
+.show-more-btn svg { width: 16px; height: 16px; transition: transform 0.3s; }
+.show-more-btn.expanded svg { transform: rotate(180deg); }
 
-.show-more-btn:hover {
-  background: var(--terra);
-  color: var(--white);
-  border-color: var(--terra);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(198, 123, 92, 0.2);
-}
+/* ── EDUCATION ── */
+.education { background: var(--cream); }
+.edu-grid { max-width: 700px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.edu-card { background: var(--white); border-radius: 20px; padding: 2rem; border: 1px solid rgba(42, 34, 32, 0.04); transition: all 0.3s; }
+.edu-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(61, 43, 34, 0.06); }
+.edu-card h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 0.2rem; }
+.edu-school { font-size: 0.9rem; color: var(--terra); font-weight: 500; margin-bottom: 0.5rem; }
+.edu-card p { font-size: 0.85rem; color: var(--ink-soft); }
 
-.show-more-btn svg {
-  width: 16px; height: 16px;
-  transition: transform 0.3s;
-}
-
-.show-more-btn.expanded svg {
-  transform: rotate(180deg);
-}
-
-.education { background: var(--white); }
-
-.edu-grid {
-  max-width: 700px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-.edu-card {
-  background: var(--cream);
-  border-radius: 20px;
-  padding: 2rem;
-  border: 1px solid rgba(42, 34, 32, 0.04);
-  transition: all 0.3s;
-}
-
-.edu-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(61, 43, 34, 0.06);
-}
-
-.edu-card h3 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.1rem;
-  margin-bottom: 0.2rem;
-}
-
-.edu-school {
-  font-size: 0.9rem;
-  color: var(--terra);
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.edu-card p {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-}
-
-.contact {
-  background: var(--bark);
-  color: var(--white);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.contact::before {
-  content: '';
-  position: absolute;
-  bottom: -150px; left: -100px;
-  width: 400px; height: 400px;
-  border-radius: 50%;
-  background: var(--terra);
-  opacity: 0.06;
-}
-
-.contact::after {
-  content: '';
-  position: absolute;
-  top: -80px; right: -60px;
-  width: 250px; height: 250px;
-  border-radius: 50%;
-  background: var(--terra-light);
-  opacity: 0.05;
-}
-
+/* ── CONTACT ── */
+.contact { background: var(--bark); color: var(--white); text-align: center; position: relative; overflow: hidden; }
+.contact::before { content: ''; position: absolute; bottom: -150px; left: -100px; width: 400px; height: 400px; border-radius: 50%; background: var(--terra); opacity: 0.06; }
+.contact::after { content: ''; position: absolute; top: -80px; right: -60px; width: 250px; height: 250px; border-radius: 50%; background: var(--terra-light); opacity: 0.05; }
 .contact .section-tag { color: var(--terra-light); }
 .contact .section-header h2 { color: var(--white); }
 .contact .section-header p { color: rgba(255,255,255,0.55); }
-
-.contact-links {
-  display: flex;
-  justify-content: center;
-  gap: 1.2rem;
-  flex-wrap: wrap;
-  margin-top: 2rem;
-  position: relative;
-  z-index: 1;
-}
-
+.contact-links { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; margin-top: 2rem; position: relative; z-index: 1; }
 .contact-link {
   display: inline-flex;
   align-items: center;
@@ -796,14 +609,7 @@ section { padding: 6rem 2rem; }
   color: var(--white);
   border: 1px solid rgba(255,255,255,0.1);
 }
-
-.contact-link:hover {
-  background: var(--terra);
-  border-color: var(--terra);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(198, 123, 92, 0.3);
-}
-
+.contact-link:hover { background: var(--terra); border-color: var(--terra); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(198, 123, 92, 0.3); }
 .contact-link svg { width: 18px; height: 18px; }
 
 footer {
@@ -817,20 +623,10 @@ footer {
 
 @media (max-width: 768px) {
   .nav-links { display: none; }
-  .nav-links.open {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 100%; left: 0; right: 0;
-    background: rgba(255, 249, 244, 0.97);
-    backdrop-filter: blur(20px);
-    padding: 1.5rem 2rem;
-    gap: 1rem;
-    border-bottom: 1px solid rgba(61, 43, 34, 0.06);
-  }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: rgba(255, 249, 244, 0.97); backdrop-filter: blur(20px); padding: 1.5rem 2rem; gap: 1rem; border-bottom: 1px solid rgba(61, 43, 34, 0.06); }
   .hamburger { display: flex; }
   .about-grid { grid-template-columns: 1fr; gap: 2rem; }
-  .consortium-content { grid-template-columns: 1fr; }
+  .specialties-grid { grid-template-columns: 1fr; }
   .edu-grid { grid-template-columns: 1fr; }
   .hero { padding-top: 8rem; }
   section { padding: 4rem 1.5rem; }
@@ -839,25 +635,40 @@ footer {
   .stat-num { font-size: 1.4rem; }
 }
 
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav id="nav">
-  <a href="#" class="nav-logo">B<span>.</span> Belltawn</a>
+  <a href="#" class="nav-logo">
+    <!-- Convergence logo: 3 dots with blush curves merging to one point, then dark arrow -->
+    <svg class="convergence-logo" viewBox="0 0 52 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Burgen Belltawn logo">
+      <!-- Blush curves from top/bottom dots to convergence point -->
+      <path d="M6 5 C16 5, 22 17, 28 17" stroke="#E8C4B4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M6 31 C16 31, 22 19, 28 17" stroke="#E8C4B4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <!-- Middle straight path (blush) -->
+      <path d="M6 17 L28 17" stroke="#E8C4B4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <!-- Outer dots (blush/light) -->
+      <circle cx="6" cy="5" r="3" fill="#E8C4B4"/>
+      <circle cx="6" cy="31" r="3" fill="#E8C4B4"/>
+      <circle cx="6" cy="17" r="3" fill="#C67B5C"/>
+      <!-- Convergence dot (dark terra) -->
+      <circle cx="28" cy="17" r="3.5" fill="#C67B5C"/>
+      <!-- Arrow shaft + head (dark terra) -->
+      <path d="M31.5 17 L46 17" stroke="#B56A4A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <polyline points="40,11 47,17 40,23" stroke="#B56A4A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="nav-logo-text">
+      <div class="nav-logo-name">Burgen</div>
+      <div class="nav-logo-surname">BELLTAWN</div>
+    </div>
+  </a>
   <ul class="nav-links" id="navLinks">
     <li><a href="#about">About</a></li>
-    <li><a href="#consortium">Consortia</a></li>
+    <li><a href="#specialties">Specialties</a></li>
     <li><a href="#tools">AI Tools</a></li>
     <li><a href="#experience">Experience</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -867,6 +678,7 @@ footer {
   </button>
 </nav>
 
+<!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-bg">
     <div class="glow-orb glow-orb-1"></div>
@@ -875,9 +687,9 @@ footer {
     <div class="dot-pattern"></div>
   </div>
   <div class="hero-content">
-    <div class="hero-tag">MEL Specialist · AI Tools Builder</div>
+    <div class="hero-tag">MEL Specialist · Data Systems Strategist · AI Tools Builder</div>
     <h1>Hi, I'm <span class="accent">Burgen</span> Belltawn</h1>
-    <p class="hero-sub">12+ years building MEL systems for humanitarian and development programs worldwide. Now crafting AI tools to put MEL power directly into the hands of local professionals.</p>
+    <p class="hero-sub">13+ years building MEL systems for humanitarian and development programs worldwide. Now crafting AI tools to put MEL power directly into the hands of local professionals.</p>
     <div class="hero-cta">
       <a href="#tools" class="btn btn-primary">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -888,6 +700,7 @@ footer {
   </div>
 </section>
 
+<!-- ABOUT -->
 <section class="about" id="about">
   <div class="section-header reveal">
     <div class="section-tag">About</div>
@@ -903,7 +716,7 @@ footer {
         </div>
         <div class="stat-row">
           <div class="stat">
-            <div class="stat-num">12+</div>
+            <div class="stat-num">13+</div>
             <div class="stat-label">Years MEL</div>
           </div>
           <div class="stat">
@@ -938,66 +751,191 @@ footer {
   </div>
 </section>
 
-<section class="consortium" id="consortium">
+<!-- SPECIALTIES (4 expandable cards) -->
+<section class="specialties" id="specialties">
   <div class="section-header reveal">
-    <div class="section-tag">Specialty</div>
-    <h2>Consortium MEL Systems</h2>
-    <p>Multi-partner programs have unique MEL challenges. I help fix them — fast.</p>
+    <div class="section-tag">Specialties</div>
+    <h2>Where I Go Deep</h2>
   </div>
-  <div class="consortium-inner">
-    <div class="consortium-content">
-      <div class="cons-card reveal">
-        <span class="cons-icon">🔧</span>
-        <h3>Indicator Governance</h3>
-        <p>Definitions, ownership, change control, and escalation paths — so every partner is measuring the same thing the same way.</p>
+  <div class="specialties-grid">
+
+    <!-- Card 1: Consortium MEL -->
+    <div class="spec-card reveal" id="spec-1">
+      <div class="spec-header" onclick="toggleSpec('spec-1')">
+        <div class="spec-header-left">
+          <div class="spec-icon c1">🔗</div>
+          <div class="spec-title-group">
+            <h3>Consortium MEL Systems</h3>
+            <div class="spec-tagline">Multi-partner programs have unique MEL challenges. I fix them.</div>
+          </div>
+        </div>
+        <svg class="spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div class="cons-card reveal">
-        <span class="cons-icon">🔗</span>
-        <h3>Harmonization</h3>
-        <p>Aligning methodologies, tools, and calendars across agencies so data can actually be aggregated and compared.</p>
-      </div>
-      <div class="cons-card reveal">
-        <span class="cons-icon">📊</span>
-        <h3>Decision-Facing Reporting</h3>
-        <p>Steering packs and summaries that help leadership act on data — not just receive it.</p>
-      </div>
-      <div class="cons-card reveal">
-        <span class="cons-icon">🔄</span>
-        <h3>Learning Integration</h3>
-        <p>AARs and learning questions mapped to indicators, so lessons feed back into monitoring and program decisions.</p>
+      <div class="spec-body">
+        <div class="spec-body-inner">
+          <p>When multiple agencies share one MEL framework or set of indicators, the failure modes are predictable: indicator definitions drift across partners, data collection methods vary and results can't be meaningfully compared, no one owns quality. I specialize in building the governance structures that prevent this.</p>
+          <ul class="spec-bullets">
+            <li>Indicator governance — definitions, ownership, change control, escalation paths</li>
+            <li>Methodology harmonization across partners with different systems and capacity levels</li>
+            <li>Survey question review and harmonization — aligning instruments so data is actually comparable across partners</li>
+            <li>Aggregation logic and data quality rules that actually hold</li>
+            <li>Decision-facing reporting: steering packs, summary logic, narrative that forces interpretation</li>
+            <li>Learning integration — AARs and learning questions mapped back to indicators</li>
+          </ul>
+          <p style="margin-top:0.8rem"><em>Recent examples: $100M Ukraine Cash Consortium (Mercy Corps), €19M Yemen durable solutions program (6-agency, ACTED/EU).</em></p>
+        </div>
       </div>
     </div>
+
+    <!-- Card 2: Humanitarian MEL -->
+    <div class="spec-card reveal" id="spec-2">
+      <div class="spec-header" onclick="toggleSpec('spec-2')">
+        <div class="spec-header-left">
+          <div class="spec-icon c2">🚨</div>
+          <div class="spec-title-group">
+            <h3>Humanitarian MEL</h3>
+            <div class="spec-tagline">Fast systems for fast-moving contexts.</div>
+          </div>
+        </div>
+        <svg class="spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="spec-body">
+        <div class="spec-body-inner">
+          <p>Humanitarian contexts demand MEL systems that are lean, deployable quickly, and robust enough to hold under operational pressure. I've built and deployed MEL in sudden-onset emergencies and protracted crises across multiple sectors.</p>
+          <ul class="spec-bullets">
+            <li>Rapid assessment design and field-ready data collection tools</li>
+            <li>PDM systems — design, automation, synthesis across response zones</li>
+            <li>30+ tool emergency M&E toolkit (Mercy Corps, deployed globally)</li>
+            <li>Data Quality Assessments in active response settings</li>
+            <li>MEL chapters for major institutional proposals (FCDO, ECHO, USAID)</li>
+          </ul>
+          <p style="margin-top:0.8rem"><em>Countries: Ukraine, Yemen, Nepal, Greece, Nigeria, Myanmar, Uganda, Lebanon.</em></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Locally Led MEL -->
+    <div class="spec-card reveal" id="spec-3">
+      <div class="spec-header" onclick="toggleSpec('spec-3')">
+        <div class="spec-header-left">
+          <div class="spec-icon c3">🌱</div>
+          <div class="spec-title-group">
+            <h3>Locally Led MEL</h3>
+            <div class="spec-tagline">Building systems people own, not just use.</div>
+          </div>
+        </div>
+        <svg class="spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="spec-body">
+        <div class="spec-body-inner">
+          <p>The most technically sound MEL system fails if national staff can't operate it independently. I design for handover from day one — building capacity, confidence, and ownership into the system itself, not just the training.</p>
+          <ul class="spec-bullets">
+            <li>Recruited and trained HIAS Ukraine's first national MEL team of five — two team members hired with no prior MEL experience are now senior MEL leaders in the field</li>
+            <li>Mentored a national staff member with no prior MEL experience into a senior MEL role in the Lebanon response (IRC)</li>
+            <li>Technical oversight for 8 local implementing partners (IRC Lebanon)</li>
+            <li>Simplified tools and processes designed for varying technical capacity</li>
+            <li>Structured mentoring and on-the-job skill development</li>
+            <li>AI tools explicitly designed for MEL professionals in LMICs — not just expat consultants</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Training & Facilitation -->
+    <div class="spec-card reveal" id="spec-4">
+      <div class="spec-header" onclick="toggleSpec('spec-4')">
+        <div class="spec-header-left">
+          <div class="spec-icon c4">🎯</div>
+          <div class="spec-title-group">
+            <h3>Training & Facilitation</h3>
+            <div class="spec-tagline">MEL learning that sticks.</div>
+          </div>
+        </div>
+        <svg class="spec-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="spec-body">
+        <div class="spec-body-inner">
+          <p>I design and facilitate MEL learning that's practical, contextually grounded, and actually used. From large multi-partner workshops to one-on-one mentoring, the focus is always on building confidence alongside competence.</p>
+          <ul class="spec-bullets">
+            <li>Lessons Learned workshops for large consortia (facilitation + synthesis)</li>
+            <li>Enumerator training for household and anthropometric surveys</li>
+            <li>After Action Review facilitation for emergency response teams</li>
+            <li>MEL toolkit orientation across multiple agencies and capacity levels</li>
+            <li>Data use and interpretation workshops for program and leadership teams</li>
+            <li>AI readiness trainings and assessments — helping MEL teams understand where and how to integrate AI responsibly into their systems</li>
+            <li>GDPR (General Data Protection Regulation) awareness training for MEL and data collection teams operating in regulated contexts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
+
+<!-- AI TOOLS -->
 <section class="tools" id="tools">
   <div class="section-header reveal">
     <div class="section-tag">AI Tools for MEL</div>
     <h2>Tools I'm Building</h2>
-    <p>AI-powered tools for MEL professionals — making it easier to run, govern, and own your systems. More coming as I go.</p>
+    <p>AI-powered tools for MEL professionals — making it easier to run, govern, and own your systems.</p>
   </div>
   <div class="tools-grid">
-    <div class="tool-card featured reveal" onclick="window.location.href='tools/indicator-quality-reviewer.html'" style="cursor:pointer;">
+
+    <div class="tool-card featured reveal">
       <div class="tool-icon terra-bg">🔍</div>
       <h3>Indicator Quality Reviewer</h3>
-      <p>Paste your logframe or indicator table. Get instant SMART compliance checks, structural analysis, and AI-powered review with specific improvement suggestions.</p>
-      <span class="tool-badge first">Live — Try It</span>
+      <p>AI-assisted review of individual indicators — checking definition clarity, measurability, attribution, and common wording problems. Paste in any indicator and get structured feedback instantly.</p>
+      <!-- TODO: Replace href below with live IQR tool URL -->
+      <a href="#" target="_blank" class="tool-badge live">Try It Now →</a>
     </div>
+
+    <div class="tool-card reveal">
+      <div class="tool-icon terra-bg">🔗</div>
+      <h3>Consortium Indicator Review</h3>
+      <p>Upload a consortium indicator matrix and get a full review — definitions, harmonization gaps, ownership clarity, and decision-relevance. Catches the failure modes before they become reporting crises.</p>
+      <span class="tool-badge soon">Coming Soon</span>
+    </div>
+
+    <div class="tool-card reveal">
+      <div class="tool-icon sage-bg">📐</div>
+      <h3>Analysis Plan Generator</h3>
+      <p>Turn your indicators and evaluation questions into a structured analysis plan — specifying methods, disaggregations, and data sources for each.</p>
+      <span class="tool-badge soon">Coming Soon</span>
+    </div>
+
+    <div class="tool-card reveal">
+      <div class="tool-icon sand-bg">🔄</div>
+      <h3>Results Chain Logic Checker</h3>
+      <p>Map your theory of change against your indicator set and surface gaps, misalignments, and missing links between outputs, outcomes, and impact.</p>
+      <span class="tool-badge soon">Coming Soon</span>
+    </div>
+
+    <div class="tool-card reveal">
+      <div class="tool-icon terra-bg">💻</div>
+      <h3>Analysis Code Generator</h3>
+      <p>Generate R or Python analysis code from your indicator definitions and data structure — ready to run, with cleaning and disaggregation logic built in.</p>
+      <span class="tool-badge soon">Coming Soon</span>
+    </div>
+
     <div class="tool-card reveal">
       <div class="tool-icon sage-bg">📋</div>
-      <h3>MEL Reset Toolkit</h3>
-      <p>Indicator governance frameworks, harmonized matrices, IPTT logic clean-up, and QA rules — for teams inheriting messy multi-partner systems.</p>
+      <h3>Indicator Governance Workbook</h3>
+      <p>Auto-generate a governance workbook for your indicator matrix — ownership fields, change log structure, definition standards, and QA rules for each indicator.</p>
       <span class="tool-badge soon">Coming Soon</span>
     </div>
+
     <div class="tool-card reveal">
-      <div class="tool-icon sand-bg">📊</div>
-      <h3>Steering Pack Builder</h3>
-      <p>Decision-facing reporting tools — indicator-to-decision mapping, visual summary logic, and narrative prompts that force interpretation.</p>
+      <div class="tool-icon sand-bg">🗺️</div>
+      <h3>TOC-to-Indicator Comparator</h3>
+      <p>Upload your Theory of Change and indicator matrix together. Get a side-by-side comparison highlighting coverage gaps, redundancies, and indicators with no clear TOC link.</p>
       <span class="tool-badge soon">Coming Soon</span>
     </div>
+
   </div>
 </section>
 
+<!-- EXPERIENCE -->
 <section class="experience" id="experience">
   <div class="section-header reveal">
     <div class="section-tag">Experience</div>
@@ -1017,11 +955,7 @@ footer {
       <h3>M&E Technical Support, Ukraine Response</h3>
       <div class="tl-org">Mercy Corps · Ukraine</div>
       <div class="tl-desc">Facilitated Lessons Learned workshops for the $100M Ukraine Cash Consortium. Lead MEL writer for winning £15M FCDO and €13M ECHO proposals. Conducted comprehensive Data Quality Assessment across the response.</div>
-      <div class="tl-sectors">
-        <span class="tl-sector">MPCA</span>
-        <span class="tl-sector">Cash</span>
-        <span class="tl-sector">Winterization</span>
-      </div>
+      <div class="tl-sectors"><span class="tl-sector">MPCA</span><span class="tl-sector">Cash</span><span class="tl-sector">Winterization</span></div>
     </div>
     <div class="tl-item reveal">
       <div class="tl-dot"></div>
@@ -1029,11 +963,7 @@ footer {
       <h3>Interim Regional M&E Advisor, Ukraine Response</h3>
       <div class="tl-org">HIAS · Ukraine</div>
       <div class="tl-desc">Directed MEL activities for a $5M MHPSS and GBV program. Recruited and trained the agency's first national MEL team of five, transitioning leadership to local staff for sustainability.</div>
-      <div class="tl-sectors">
-        <span class="tl-sector">MHPSS</span>
-        <span class="tl-sector">GBV</span>
-        <span class="tl-sector">Protection</span>
-      </div>
+      <div class="tl-sectors"><span class="tl-sector">MHPSS</span><span class="tl-sector">GBV</span><span class="tl-sector">Protection</span></div>
     </div>
     <div class="tl-item reveal">
       <div class="tl-dot"></div>
@@ -1041,11 +971,7 @@ footer {
       <h3>M&E Technical Advisor</h3>
       <div class="tl-org">ACTED · Yemen</div>
       <div class="tl-desc">Advised on the MEL system for a 6-agency EU-funded €19M durable solutions program targeting 11,000+ households. Automated analysis, designed final assessment tools, and systemized reporting across partners.</div>
-      <div class="tl-sectors">
-        <span class="tl-sector">Durable Solutions</span>
-        <span class="tl-sector">Livelihoods</span>
-        <span class="tl-sector">WASH</span>
-      </div>
+      <div class="tl-sectors"><span class="tl-sector">Durable Solutions</span><span class="tl-sector">Livelihoods</span><span class="tl-sector">WASH</span></div>
     </div>
 
     <div class="tl-hidden" id="moreExperience">
@@ -1061,7 +987,7 @@ footer {
         <div class="tl-date">May 2021 – Aug 2021</div>
         <h3>Assessment Tool Design Consultant</h3>
         <div class="tl-org">Mercy Corps · Global</div>
-        <div class="tl-desc">Constructed an assessment toolkit covering resilience, disaster risk reduction, agriculture, economic recovery, and market systems. Pre-identified secondary data sources and developed training materials for standardized field-level processes.</div>
+        <div class="tl-desc">Constructed an assessment toolkit covering resilience, disaster risk reduction, agriculture, economic recovery, and market systems.</div>
       </div>
       <div class="tl-item reveal">
         <div class="tl-dot"></div>
@@ -1069,11 +995,7 @@ footer {
         <h3>M&E Technical Advisor</h3>
         <div class="tl-org">Mercy Corps · Yemen</div>
         <div class="tl-desc">Coordinated MEL activities for a $12M food security consortium reaching 9,500+ households. Automated PDM reporting using Ona/R and harmonized methodologies across partners.</div>
-        <div class="tl-sectors">
-          <span class="tl-sector">Food Security</span>
-          <span class="tl-sector">Nutrition</span>
-          <span class="tl-sector">WASH</span>
-        </div>
+        <div class="tl-sectors"><span class="tl-sector">Food Security</span><span class="tl-sector">Nutrition</span><span class="tl-sector">WASH</span></div>
       </div>
       <div class="tl-item reveal">
         <div class="tl-dot"></div>
@@ -1081,11 +1003,7 @@ footer {
         <h3>Humanitarian Response MEL & Proposal Lead</h3>
         <div class="tl-org">Mercy Corps · Global</div>
         <div class="tl-desc">MEL/CLA writer for winning $100M (Kenya) and $43M (Uganda) development food security proposals. Developed a 30+ tool M&E toolkit for sudden-onset emergencies. In-country support across Nigeria, Yemen, Greece, Nepal, and Myanmar.</div>
-        <div class="tl-sectors">
-          <span class="tl-sector">Emergency Response</span>
-          <span class="tl-sector">Proposals</span>
-          <span class="tl-sector">Capacity Building</span>
-        </div>
+        <div class="tl-sectors"><span class="tl-sector">Emergency Response</span><span class="tl-sector">Proposals</span><span class="tl-sector">Capacity Building</span></div>
       </div>
       <div class="tl-item reveal">
         <div class="tl-dot"></div>
@@ -1100,11 +1018,7 @@ footer {
         <h3>Sr. M&E Manager, Economic Recovery & Development</h3>
         <div class="tl-org">International Rescue Committee · Lebanon</div>
         <div class="tl-desc">Established a MEL system for a $6M FCDO cash and livelihoods program reaching 4,500+ households. Managed a team of six and provided technical oversight to eight local partners.</div>
-        <div class="tl-sectors">
-          <span class="tl-sector">Cash</span>
-          <span class="tl-sector">Livelihoods</span>
-          <span class="tl-sector">Economic Recovery</span>
-        </div>
+        <div class="tl-sectors"><span class="tl-sector">Cash</span><span class="tl-sector">Livelihoods</span><span class="tl-sector">Economic Recovery</span></div>
       </div>
       <div class="tl-item reveal">
         <div class="tl-dot"></div>
@@ -1112,22 +1026,20 @@ footer {
         <h3>M&E and Communications Manager</h3>
         <div class="tl-org">Mercy Corps · Uganda</div>
         <div class="tl-desc">Led final evaluation for a $50M Title II program — household and anthropometric surveys, enumerator training, and full analysis. Developed learning and accountability systems for a $50M market systems program.</div>
-        <div class="tl-sectors">
-          <span class="tl-sector">Food Assistance</span>
-          <span class="tl-sector">Market Systems</span>
-        </div>
+        <div class="tl-sectors"><span class="tl-sector">Food Assistance</span><span class="tl-sector">Market Systems</span></div>
       </div>
     </div>
 
     <div class="show-more-wrap">
       <button class="show-more-btn" id="showMoreBtn" onclick="toggleExperience()">
         Show More
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
     </div>
   </div>
 </section>
 
+<!-- EDUCATION -->
 <section class="education" id="education">
   <div class="section-header reveal">
     <div class="section-tag">Education</div>
@@ -1147,6 +1059,7 @@ footer {
   </div>
 </section>
 
+<!-- CONTACT -->
 <section class="contact" id="contact">
   <div class="section-header reveal">
     <div class="section-tag">Get in Touch</div>
@@ -1154,9 +1067,9 @@ footer {
     <p>Interested in MEL consulting, AI tool collaborations, or just want to say hello?</p>
   </div>
   <div class="contact-links reveal">
-    <a href="/cdn-cgi/l/email-protection#e183848d8d9580968f83a1868c80888dcf828e8c" class="contact-link">
+    <a href="/cdn-cgi/l/email-protection#83e1e6efeff7e2f4ede1c3e4eee2eaefade0ecee" class="contact-link">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-      <span class="__cf_email__" data-cfemail="82e0e7eeeef6e3f5ece0c2e5efe3ebeeace1edef">[email&#160;protected]</span>
+      <span class="__cf_email__" data-cfemail="7311161f1f0712041d1133141e121a1f5d101c1e">[email&#160;protected]</span>
     </a>
     <a href="https://www.linkedin.com/in/burgen/" target="_blank" class="contact-link">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
@@ -1166,22 +1079,27 @@ footer {
 </section>
 
 <footer>
-  <p>&copy; 2025 Burgen Belltawn. Built with care and a little AI.</p>
+  <p>&copy; 2026 Burgen Belltawn. Built with care and a little AI.</p>
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Nav scroll
 const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 50);
-});
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
 
+// Hamburger
 const hamburger = document.getElementById('hamburger');
 const navLinks = document.getElementById('navLinks');
 hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
-navLinks.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => navLinks.classList.remove('open'));
-});
+navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => navLinks.classList.remove('open')));
 
+// Specialty card toggle (multiple open allowed)
+function toggleSpec(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+// Experience show more
 function toggleExperience() {
   const more = document.getElementById('moreExperience');
   const btn = document.getElementById('showMoreBtn');
@@ -1195,16 +1113,24 @@ function toggleExperience() {
     more.style.display = 'block';
     requestAnimationFrame(() => {
       more.classList.add('visible');
-      more.querySelectorAll('.reveal').forEach((el, i) => {
-        setTimeout(() => el.classList.add('visible'), i * 100);
-      });
+      more.querySelectorAll('.reveal').forEach((el, i) => setTimeout(() => el.classList.add('visible'), i * 100));
     });
     btn.classList.add('expanded');
     btn.innerHTML = 'Show Less <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
   }
 }
 
+// Reveal on scroll — low threshold so elements don't get stuck invisible
 const revealEls = document.querySelectorAll('.reveal');
 const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (en
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.05 });
+revealEls.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
