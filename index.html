@@ -977,11 +977,11 @@ footer {
     <p>AI-powered tools for MEL professionals — making it easier to run, govern, and own your systems. More coming as I go.</p>
   </div>
   <div class="tools-grid">
-    <div class="tool-card featured reveal">
+    <div class="tool-card featured reveal" onclick="window.location.href='tools/indicator-quality-reviewer.html'" style="cursor:pointer;">
       <div class="tool-icon terra-bg">🔍</div>
-      <h3>Consortium Indicator Review</h3>
-      <p>AI-assisted review of consortium indicator matrices — checking definitions, harmonization, ownership clarity, and decision-relevance. Catch the common failure modes before they become reporting crises.</p>
-      <span class="tool-badge first">Up First</span>
+      <h3>Indicator Quality Reviewer</h3>
+      <p>Paste your logframe or indicator table. Get instant SMART compliance checks, structural analysis, and AI-powered review with specific improvement suggestions.</p>
+      <span class="tool-badge first">Live — Try It</span>
     </div>
     <div class="tool-card reveal">
       <div class="tool-icon sage-bg">📋</div>
@@ -1154,9 +1154,9 @@ footer {
     <p>Interested in MEL consulting, AI tool collaborations, or just want to say hello?</p>
   </div>
   <div class="contact-links reveal">
-    <a href="mailto:belltawnb@gmail.com" class="contact-link">
+    <a href="/cdn-cgi/l/email-protection#e183848d8d9580968f83a1868c80888dcf828e8c" class="contact-link">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-      belltawnb@gmail.com
+      <span class="__cf_email__" data-cfemail="82e0e7eeeef6e3f5ece0c2e5efe3ebeeace1edef">[email&#160;protected]</span>
     </a>
     <a href="https://www.linkedin.com/in/burgen/" target="_blank" class="contact-link">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
@@ -1169,7 +1169,7 @@ footer {
   <p>&copy; 2025 Burgen Belltawn. Built with care and a little AI.</p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 50);
@@ -1207,14 +1207,4 @@ function toggleExperience() {
 const revealEls = document.querySelectorAll('.reveal');
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => entry.target.classList.add('visible'), i * 80);
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
-revealEls.forEach(el => observer.observe(el));
-</script>
-
-</body>
-</html>
+    if (en
