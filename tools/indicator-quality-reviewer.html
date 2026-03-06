@@ -66,6 +66,33 @@ body { font-family: 'Outfit', sans-serif; background: #FAFAF7; color: #2D2D2D; o
 <script type="text/babel" data-type="module">
 const { useState, useCallback, useRef, useEffect, Fragment } = React;
 
+// ── Proxy config ─────────────────────────────────────────────────────────────
+const PROXY_URL = "https://mel-tools-api.netlify.app/api/proxy";
+const TOOL_NAME = "indicator-quality-reviewer";
+
+// Wraps fetch to proxy, handles rate limit / spend cap responses
+async function callProxy(body) {
+  const res = await fetch(PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...body, _tool: TOOL_NAME })
+  });
+  if (res.status === 429) {
+    const j = await res.json();
+    throw new RateLimitError(j.message || "Daily limit reached. Try again in 24 hours, or download the code from GitHub to use your own API key.");
+  }
+  if (!res.ok) {
+    const j = await res.json().catch(() => ({}));
+    throw new Error(j.error || `API error ${res.status}`);
+  }
+  return res.json();
+}
+
+class RateLimitError extends Error {
+  constructor(msg) { super(msg); this.isRateLimit = true; }
+}
+
+
 
 // ─── DESIGN SYSTEM (Option B: Sage / Stone / Sans-serif) ─────────────────────
 const C = {
@@ -434,17 +461,17 @@ function AIPanel({ indicator }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [isRateLimit, setIsRateLimit] = useState(false);
 
   const run = async () => {
-    setLoading(true); setError(null);
+    setLoading(true); setError(null); setIsRateLimit(false);
     try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ model:"claude-sonnet-4-5-20250929", max_tokens:2500, messages:[{role:"user",content:buildPrompt(indicator)}] })
-      });
-      const j = await r.json();
+      const j = await callProxy({ model:"claude-sonnet-4-5-20250929", max_tokens:2500, messages:[{role:"user",content:buildPrompt(indicator)}] });
       setResult(j.content?.map(b=>b.text||"").join("\n") || "No response.");
-    } catch(e) { setError(e.message); }
+    } catch(e) {
+      setError(e.message);
+      if (e.isRateLimit) setIsRateLimit(true);
+    }
     finally { setLoading(false); }
   };
 
@@ -468,8 +495,18 @@ function AIPanel({ indicator }) {
     </div>
   );
   if (error) return (
-    <div style={{ padding:12, background:C.failBg, border:`1px solid ${C.failBorder}`, borderRadius:6, marginTop:14, fontSize:12, color:C.fail }}>
-      {error} <button onClick={run} style={{ ...btnPrimary, background:C.fail, fontSize:11, padding:"4px 12px", marginLeft:8 }}>Retry</button>
+    <div style={{ padding:14, background: isRateLimit ? "#FFF8F0" : C.failBg, border:`1px solid ${isRateLimit ? "#E8C4B4" : C.failBorder}`, borderRadius:8, marginTop:14, fontSize:12 }}>
+      {isRateLimit
+        ? <div>
+            <div style={{ fontWeight:600, color:"#B56A4A", marginBottom:6 }}>⏱ Daily limit reached</div>
+            <div style={{ color:"#6B5549", lineHeight:1.6 }}>{error}</div>
+            <a href="https://github.com/BelltawnB/mel-tools-api" target="_blank"
+               style={{ display:"inline-block", marginTop:10, color:"#C67B5C", fontWeight:500, textDecoration:"underline" }}>
+              Download the code on GitHub →
+            </a>
+          </div>
+        : <span style={{ color:C.fail }}>{error} <button onClick={run} style={{ ...btnPrimary, background:C.fail, fontSize:11, padding:"4px 12px", marginLeft:8 }}>Retry</button></span>
+      }
     </div>
   );
   return (
@@ -506,11 +543,7 @@ function IndicatorQualityReviewer() {
       // Pre-process: if it looks like tab-separated data, parse and clean client-side
       const cleaned = text.includes("\t") ? preprocessTable(text) : text;
       
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ model:"claude-sonnet-4-5-20250929", max_tokens:4096, messages:[{role:"user",content:buildParsePrompt(cleaned)}] })
-      });
-      const j = await r.json();
+      const j = await callProxy({ model:"claude-sonnet-4-5-20250929", max_tokens:4096, messages:[{role:"user",content:buildParsePrompt(cleaned)}] });
       const raw = j.content?.map(b=>b.text||"").join("") || "[]";
       // Robust JSON extraction: find the array in the response
       let clean = raw.replace(/```json|```/g,"").trim();
@@ -541,11 +574,7 @@ function IndicatorQualityReviewer() {
           parsed = JSON.parse(fixedNewlines);
         } catch (jsonErr2) {
           // Final attempt: ask the model to fix its own JSON
-          const fixR = await fetch("https://api.anthropic.com/v1/messages", {
-            method:"POST", headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({ model:"claude-sonnet-4-5-20250929", max_tokens:4096, messages:[{role:"user",content:`Fix this malformed JSON array so it parses correctly. Return ONLY the fixed JSON array, nothing else:\n\n${clean}`}] })
-          });
-          const fixJ = await fixR.json();
+          const fixJ = await callProxy({ model:"claude-sonnet-4-5-20250929", max_tokens:4096, messages:[{role:"user",content:`Fix this malformed JSON array so it parses correctly. Return ONLY the fixed JSON array, nothing else:\n\n${clean}`}] });
           const fixRaw = fixJ.content?.map(b=>b.text||"").join("") || "[]";
           let fixClean = fixRaw.replace(/```json|```/g,"").trim();
           const fb = fixClean.indexOf("[");
@@ -561,7 +590,13 @@ function IndicatorQualityReviewer() {
       parsed.forEach((_,i) => { cmap[i] = runChecks(parsed[i]); });
       setChecksMap(cmap);
       setView(VIEWS.TABLE);
-    } catch(e) { setParseError(`Parse failed: ${e.message}`); }
+    } catch(e) {
+      if (e.isRateLimit) {
+        setParseError(`⏱ Daily limit reached — ${e.message}`);
+      } else {
+        setParseError(`Parse failed: ${e.message}`);
+      }
+    }
     finally { setParsing(false); }
   };
 
@@ -652,6 +687,19 @@ function IndicatorQualityReviewer() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* NOTICE BANNER */}
+      <div style={{ background:"#FDF5F0", borderBottom:"1px solid #E8C4B4", padding:"8px 24px", display:"flex", alignItems:"center", gap:12, flexWrap:"wrap" }}>
+        <span style={{ fontSize:11, color:"#6B5549", lineHeight:1.5 }}>
+          🔒 This tool runs on a shared API — a daily usage limit applies.
+          Want unlimited access?{" "}
+          <a href="https://github.com/BelltawnB/mel-tools-api" target="_blank"
+             style={{ color:"#C67B5C", fontWeight:500, textDecoration:"underline" }}>
+            Download the code on GitHub
+          </a>{" "}
+          and use your own Anthropic API key.
+        </span>
       </div>
 
       {/* ═══ INGEST ═══ */}
