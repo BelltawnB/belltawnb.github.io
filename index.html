@@ -18,7 +18,7 @@
 body { font-family: 'Outfit', sans-serif; background: #FAFAF7; color: #2D2D2D; overflow-x: hidden; }
 .site-nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  padding: 0.8rem 2rem;
+  padding: 1rem 2rem;
   display: flex; justify-content: space-between; align-items: center;
   background: rgba(255, 249, 244, 0.92);
   backdrop-filter: blur(20px);
@@ -26,18 +26,34 @@ body { font-family: 'Outfit', sans-serif; background: #FAFAF7; color: #2D2D2D; o
 }
 .site-nav a { text-decoration: none; }
 .nav-logo {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.2rem; color: var(--ink); letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 0.75rem; text-decoration: none;
 }
-.nav-logo span { color: var(--terra); }
-.nav-links { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
+.nav-logo-text { display: flex; flex-direction: column; line-height: 1.15; }
+.nav-logo-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem; color: var(--ink); letter-spacing: -0.01em;
+}
+.nav-logo-surname {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.65rem; font-weight: 500; letter-spacing: 0.18em;
+  color: var(--terra); text-transform: uppercase;
+}
+.convergence-logo { width: 38px; height: 28px; flex-shrink: 0; }
+.nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
 .nav-links a {
-  color: var(--ink-soft); font-size: 0.85rem; font-weight: 400;
-  transition: color 0.2s;
+  color: var(--ink-soft); font-size: 0.9rem; font-weight: 400;
+  letter-spacing: 0.02em; transition: color 0.3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 2px; background: var(--terra);
+  border-radius: 2px; transition: width 0.3s ease;
 }
 .nav-links a:hover { color: var(--ink); }
+.nav-links a:hover::after { width: 100%; }
 .nav-links .current { color: var(--terra); font-weight: 500; }
-#app { margin-top: 52px; min-height: calc(100vh - 52px); }
+#app { margin-top: 64px; min-height: calc(100vh - 64px); }
 @keyframes iqr-spin { to { transform: rotate(360deg); } }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: #E8E8E0; border-radius: 3px; }
@@ -51,10 +67,26 @@ body { font-family: 'Outfit', sans-serif; background: #FAFAF7; color: #2D2D2D; o
 </head>
 <body>
 <nav class="site-nav">
-  <a href="https://belltawnb.github.io/" class="nav-logo"><span>B.</span> Belltawn</a>
+  <a href="https://belltawnb.github.io/" class="nav-logo">
+    <svg class="convergence-logo" viewBox="0 0 52 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Burgen Belltawn logo">
+      <path d="M6 5 C16 5, 22 17, 28 17" stroke="#E8C4B4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M6 31 C16 31, 22 19, 28 17" stroke="#E8C4B4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M6 17 L28 17" stroke="#E8C4B4" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <circle cx="6" cy="5" r="3" fill="#E8C4B4"/>
+      <circle cx="6" cy="31" r="3" fill="#E8C4B4"/>
+      <circle cx="6" cy="17" r="3" fill="#C67B5C"/>
+      <circle cx="28" cy="17" r="3.5" fill="#C67B5C"/>
+      <path d="M31.5 17 L46 17" stroke="#B56A4A" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <polyline points="40,11 47,17 40,23" stroke="#B56A4A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="nav-logo-text">
+      <div class="nav-logo-name">Burgen</div>
+      <div class="nav-logo-surname">BELLTAWN</div>
+    </div>
+  </a>
   <ul class="nav-links">
     <li><a href="https://belltawnb.github.io/#about">About</a></li>
-    <li><a href="https://belltawnb.github.io/#consortium">Consortia</a></li>
+    <li><a href="https://belltawnb.github.io/#specialties">Specialties</a></li>
     <li><a href="https://belltawnb.github.io/#tools" class="current">AI Tools</a></li>
     <li><a href="https://belltawnb.github.io/#experience">Experience</a></li>
     <li><a href="https://belltawnb.github.io/#contact">Contact</a></li>
