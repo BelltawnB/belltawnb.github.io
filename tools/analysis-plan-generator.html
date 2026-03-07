@@ -83,10 +83,15 @@ const PROXY_URL = "https://mel-tools-api.netlify.app/api/proxy";
 const TOOL_NAME = "analysis-plan-generator";
 
 async function callProxy(body) {
-  const res = await fetch(PROXY_URL, {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ ...body, _tool: TOOL_NAME })
-  });
+  let res;
+  try {
+    res = await fetch(PROXY_URL, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ ...body, _tool: TOOL_NAME })
+    });
+  } catch(e) {
+    throw new Error("Could not reach the API. Check your internet connection and try again. (Network error: " + e.message + ")");
+  }
   if (res.status === 429) {
     const j = await res.json();
     throw new RateLimitError(j.message || "Daily limit reached. Try again in 24 hours, or download the code from GitHub to use your own API key.");
@@ -116,62 +121,39 @@ const inputStyle = { width:"100%", padding:"9px 12px", background:C.surface, bor
 const btnPrimary = { padding:"9px 20px", background:C.forest, color:"#fff", border:"none", borderRadius:6, fontFamily:C.sans, fontWeight:600, fontSize:13, cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8 };
 const btnOutline = { padding:"7px 14px", background:"transparent", color:C.forest, border:`1px solid ${C.border}`, borderRadius:6, fontFamily:C.sans, fontWeight:500, fontSize:12, cursor:"pointer" };
 
-// ── Example data (trimmed 15DYK) ─────────────────────────────────────────────
+// ── Example data (Almaran SRI Pilot — fictional) ──────────────────────────────
 const EXAMPLE_XLSFORM = `type\tname\tlabel::English
-select_one HH_current_status\tHH_current_status\tS5.1 What is the current status of this household?
-select_one yes_no\tHH_is_able_return\tS6.12 Is your household able to return to your area of origin?
-select_one return_plans\thave_return_plans\tS6.15 What are your household's plans regarding return?
-select_multiple barriers_return\tbarriers_return\tS6.13 What are the main reasons you cannot return? (Select up to 3)
-integer\tHH_total_members\tS8.1 How many people currently live in this household?
-integer\tmembers_male_under5\tS8.2.1 Males under 5
-integer\tmembers_female_under5\tS8.2.2 Females under 5
-integer\tmembers_male_5to17\tS8.2.3 Males 5-17
-integer\tmembers_female_5to17\tS8.2.4 Females 5-17
-select_one housing_type\thousing_describes\tS11.1 Which best describes your current housing?
-select_one occupancy_type\toccupancy_type\tS11.2 What is your household's occupancy arrangement?
-select_one safe_feel\tsafe_feel_in_this_area\tS11.4 How safe do you feel to settle or stay in this area?
-select_multiple unsafe_factors\tunsafe_factors\tS11.5 What factors make you feel unsafe? (Select all that apply)
-text\tunsafe_other\tS11.6 Other factors making you feel unsafe
-select_one income_sufficiency\tHH_have_sufficient_incom\tS12.1 Is your household's income sufficient to meet basic needs?
-integer\tcurrent_income\tHH_current_income\tS12.2 What is your household's total monthly income (USD equivalent)?
-integer\tmonthly_rent\tHH_monthly_rent\tS12.3 How much does your household pay monthly for housing/rent?
-select_one food_cereals_freq\tfcs_bread\tS14.1.1 In the past 7 days, how many days did your household consume: Cereals/bread/rice/pasta?
-select_one food_pulses_freq\tfcs_pulses\tS14.1.2 Pulses/legumes/nuts?
-select_one food_veg_freq\tfcs_veg\tS14.1.3 Vegetables/leaves?
-select_one food_fruit_freq\tfcs_fruit\tS14.1.4 Fruit?
-select_one food_meat_freq\tfcs_meat\tS14.1.5 Meat/fish/eggs?
-select_one food_dairy_freq\tfcs_dairy\tS14.1.6 Dairy products?
-select_one food_sugar_freq\tfcs_sugar\tS14.1.7 Sugar/honey?
-select_one food_oil_freq\tfcs_oil\tS14.1.8 Oil/fat?
-select_one rcsi_less_pref\tRcsi_less_preferred_food\tS16.1.1 Relied on less preferred/less expensive foods
-select_one rcsi_borrow\tRcsi_Borrow_food\tS16.1.2 Borrowed food or relied on help from friends/family
-select_one rcsi_reduce_portions\tRcsi_Reduce_portion_size\tS16.1.3 Reduced portion sizes at mealtimes
-select_one rcsi_restrict_adults\tRcsi_Restrict_consumption_adults\tS16.1.4 Restricted consumption by adults so children could eat
-select_one rcsi_reduce_meals\tRcsi_Reduce_number_of_meals_eaten_in_a_day\tS16.1.5 Reduced the number of meals eaten per day
-select_one market_supply\tability_of_market_supply\tS17.1 How well can the market supply all basic commodities your household needs?
-select_one price_change\tpricesof_commodities\tS17.3 How have prices of basic commodities changed in the past 3 months?
-select_one missing_document\tAre_you_missing_document\tS22.1 Is your household missing any core identity documents?
-select_multiple missing_doc_type\tmissing_doc_types\tS22.2 Which documents are missing?
-select_one doc_disrupts_access\tmissing_document_disruptaccess_goods\tS22.3 Does missing a document disrupt your access to basic goods/services?
-select_one child_labour_common\tindividuals_below18_working\tS22.5 How common is it for individuals under 18 to work in this community?
-select_multiple areas_women_avoid\tavoid_areas_community_by_women_girls\tS22.6 What areas do women/girls avoid or feel unsafe in?
-select_one cohesion_idp_host\tIDPs_HostCommunity_get_well\tS23.1 How well do IDPs and host community members get along?
-select_one cohesion_borrow\tIDPs_borrow_from_host\tS23.2 How often do IDPs and host community members borrow from each other?
-select_one cohesion_support\tIDPs_support_host\tS23.3 How often do IDPs and host community members support each other in crises?
-select_one cohesion_trust\tDPs_HostCommunity_trust_each_other\tS23.5 How much do IDPs and host community members trust each other?
-select_one cohesion_accepted\tfeel_accepted_welcomed_in_community\tS23.11 How well does your household feel accepted and welcomed in this community?
-select_one authority_cohesion\tlocal_authorities_promoting_to_improve_relationships_reduce_conflicts\tS23.13 How involved are local authorities in promoting social cohesion and reducing conflict?
-select_one cso_cohesion\tcivil_society_Orgs_improve_relationships_reduce_conflicts\tS23.14 How involved are civil society organizations in promoting social cohesion?`;
+select_one hh_status\thh_status\tS2.1 What is the current status of this household?
+select_one safe_settle\tsafe_settle\tS3.1 How safe do you feel to settle or stay in this area?
+select_multiple unsafe_factors\tunsafe_factors\tS3.2 What factors make you feel unsafe? (Select all that apply)
+select_one housing_type\thousing_type\tS4.1 Which best describes your current housing situation?
+select_one income_sufficient\tincome_sufficient\tS5.1 Is your household's current income sufficient to meet basic needs?
+integer\tincome_monthly\tincome_monthly\tS5.2 Approximate monthly household income (AMD equivalent)
+select_one food_cereals\tfcs_cereals\tS6.1 In the past 7 days, how many days did your household eat: Cereals/bread/rice?
+select_one food_pulses\tfcs_pulses\tS6.2 Pulses/legumes/nuts?
+select_one food_veg\tfcs_veg\tS6.3 Vegetables?
+select_one food_meat\tfcs_meat\tS6.4 Meat/fish/eggs?
+select_one food_dairy\tfcs_dairy\tS6.5 Dairy products?
+select_one food_sugar\tfcs_sugar\tS6.6 Sugar/honey?
+select_one food_oil\tfcs_oil\tS6.7 Oil/fat?
+select_one rcsi_less_pref\trcsi_less_pref\tS7.1 Relied on less preferred/cheaper foods
+select_one rcsi_borrow\trcsi_borrow\tS7.2 Borrowed food or relied on help from others
+select_one rcsi_reduce_portions\trcsi_portions\tS7.3 Reduced portion sizes
+select_one rcsi_restrict_adults\trcsi_adults\tS7.4 Restricted adult consumption so children could eat
+select_one rcsi_reduce_meals\trcsi_meals\tS7.5 Reduced number of meals per day
+select_one missing_doc\tmissing_doc\tS8.1 Is your household missing any core identity documents?
+select_one doc_blocks_access\tdoc_blocks_access\tS8.2 Does missing a document prevent access to services or assistance?
+select_one idp_host_relations\tidp_host_relations\tS9.1 How well do displaced and host community members get along in this area?
+select_one community_trust\tcommunity_trust\tS9.2 How much do displaced and host community members trust each other?
+select_one feel_accepted\tfeel_accepted\tS9.3 How well does your household feel accepted in this community?
+select_one authority_engagement\tauthority_engagement\tS9.4 How involved are local authorities in improving community relations?`;
 
-const EXAMPLE_LOGFRAME = `Level\tIndicator\tDefinition\tBaseline\tTarget\tDisaggregation\tSource
-Impact\t% beneficiaries feeling 'very safe' to settle in project areas\tCount of HHs selecting 'Very safe' in S11.4 / total S11.4 respondents × 100. Threshold: 'Very safe' only — 'Somewhat safe' does not count.\t68%\t80%\tSex of HoH; Displacement status (IDP/Returnee/Host); Governorate\tFinal assessment survey
-Impact\t% HHs reporting income sufficient to meet basic needs\tCount of HHs selecting 'Very sufficient' OR 'Just sufficient' in S12.1 / total S12.1 respondents × 100. Top 2 options combined.\t15%\t23%\tSex of HoH; Displacement status; Activity type received\tFinal assessment survey
-Impact\tPrevalence of Acceptable food consumption (FCS)\tYemen-specific FCS thresholds: Acceptable ≥42, Borderline 28-41, Poor <28. Weighted formula: Cereals×2 + Pulses×3 + Veg×1 + Fruit×1 + Meat/Fish/Eggs×4 + Dairy×4 + Sugar×0.5 + Oil×0.5.\tAcceptable 37%, Borderline 38%, Poor 25%\tAcceptable 39%, Borderline 40%, Poor 21%\tSex of HoH; Displacement status; Governorate\tFinal assessment survey
-Outcome\tMean FCS score by displacement status\tMean FCS score computed separately for IDP, Returnee, and Host Community groups. Baseline means: IDP 39.3, Host 38.7, Returnee 40.8.\tIDP 39.3 / Host 38.7 / Returnee 40.8\tImprovement in mean score\tDisplacement status\tFinal assessment survey
-Outcome\tMean reduced Coping Strategy Index (rCSI) score\trCSI = (less preferred food×1) + (borrow food×2) + (limit portions×1) + (restrict adults×3) + (reduce meals×1). Lower = better.\t16\t14.95\tSex of HoH; Displacement status; Governorate\tFinal assessment survey
-Outcome\t% IDPs and returnees in inadequate housing\tInadequate = tent, unfinished structure, communal building, or no shelter. Denominator: IDP and returnee HHs only.\tNot available\t≤5%\tSex of HoH; Governorate\tFinal assessment survey
-Outcome\t% reporting improved social cohesion (Outcome 1.4)\t12-item Likert battery (S23.1-S23.12). Method: calculate % selecting 'Very well' or 'Somewhat well' per question, then average across all 12. Do NOT pool denominator across questions.\tVery well 34%, Somewhat well 48%\tVery well 40%, Somewhat well 53%\tSex of HoH; Displacement status; Governorate\tFinal assessment survey
-Outcome\t% reporting local authority and CSO engagement (Outcome 1.5)\t2 questions (S23.13 local authorities, S23.14 CSOs). Method: compute % top-2 per question separately, then average. Baseline: authorities 26%, CSOs 40%.\tAuthorities 26%; CSOs 40%\tAuthorities 28%; CSOs 45%\tSex of HoH; Displacement status\tFinal assessment survey`;
+const EXAMPLE_LOGFRAME = `Level\tIndicator\tDefinition\tBaseline\tTarget\tDisaggregation
+Impact\t% HHs feeling very safe to settle in project areas\t% selecting 'Very safe' only in S3.1. Threshold: top option only.\t52%\t70%\tSex of HoH; Displacement status; Governorate
+Impact\t% HHs with sufficient income\t% selecting 'Sufficient' or 'More than sufficient' in S5.1. Top-2 combined.\t18%\t30%\tSex of HoH; Displacement status
+Outcome\tMean rCSI score\trCSI = less preferred×1 + borrow×2 + portions×1 + adults×3 + meals×1. Lower = better. Baseline 19, target 15.\t19\t15\tSex of HoH; Displacement status; Governorate
+Outcome\t% HHs with Acceptable food consumption\tFCS Acceptable ≥28 (standard thresholds). Formula: Cereals×2 + Pulses×3 + Veg×1 + Meat×4 + Dairy×4 + Sugar×0.5 + Oil×0.5.\t41%\t55%\tSex of HoH; Displacement status
+Outcome\t% reporting positive social cohesion\t3-item battery S9.1–S9.3. % selecting top-2 per question, averaged across items.\t38%\t52%\tSex of HoH; Displacement status; Governorate`;
 
 // ── Prompt builders ───────────────────────────────────────────────────────────
 function buildParsePrompt(xlsform, logframe) {
@@ -452,7 +434,7 @@ function App() {
                     {rowCount} question{rowCount!==1?"s":""} {overLimit?"— over 50 limit":"detected"}
                   </span>
                 )}
-                <button className="btn-outline" style={{ fontSize:11, padding:"4px 10px" }} onClick={loadExample}>Load Example</button>
+                <button className="btn-outline" style={{ fontSize:11, padding:"4px 10px" }} onClick={loadExample}>Load Flawed Example</button>
               </div>
             </div>
             <textarea value={xlsInput} onChange={e=>setXlsInput(e.target.value)}
