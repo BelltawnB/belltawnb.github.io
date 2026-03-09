@@ -156,79 +156,43 @@ Outcome\t% HHs with Acceptable food consumption\tFCS Acceptable ≥28 (standard 
 Outcome\t% reporting positive social cohesion\t3-item battery S9.1–S9.3. % selecting top-2 per question, averaged across items.\t38%\t52%\tSex of HoH; Displacement status; Governorate`;
 
 // ── Prompt builders ───────────────────────────────────────────────────────────
-function buildParsePrompt(xlsform, logframe) {
-  return `You are a senior MEL data specialist. Parse the following XLSForm survey sheet and logframe to extract structured data for analysis planning.
+function buildCombinedPrompt(xlsform, logframe) {
+  return `You are a senior MEL specialist. Given the XLSForm survey sheet and logframe below, generate a complete analysis plan in a single response.
 
 XLSFORM SURVEY SHEET (tab-separated):
 ${xlsform}
 
-LOGFRAME (tab-separated):
+LOGFRAME:
 ${logframe || "No logframe provided."}
 
-Extract and return a JSON object with exactly these two keys:
+Return a JSON object with exactly these keys:
 
-1. "questions": array of up to 50 question objects, each with:
-   - name: variable name (from 'name' column)
-   - label: English label (from 'label::English' or 'label' column)
-   - type: question type (select_one, select_multiple, integer, text, calculate, etc.)
-   - section: infer section code from label prefix (e.g. "S5", "S6", "S11") or group context
-   - section_label: full section name (e.g. "Household Status", "Shelter")
-   Skip: begin_group, end_group, begin_repeat, end_repeat, note, calculate rows
-
-2. "indicators": array of logframe indicator objects, each with:
-   - level: results level (Impact/Outcome/Output/Activity)
-   - name: indicator name
-   - definition: full definition including calculation method
-   - baseline: baseline value
-   - target: target value
-   - disaggregation: disaggregation categories
-   - source_questions: array of variable names from the XLSForm that feed this indicator (match carefully)
-   - threshold: specific threshold if applicable (e.g. "'Very safe' only", "top-2 options combined")
-   - notes: any critical methodological notes (e.g. Yemen-specific FCS thresholds, normalization method)
-
-CRITICAL JSON RULES: Return ONLY a valid JSON object. No markdown, no backticks, no explanation. All strings on one line (no literal newlines). Use null for missing values.`;
-}
-
-function buildAnalysisPlanPrompt(parsedData) {
-  return `You are a senior MEL specialist generating a structured analysis plan for a humanitarian final assessment.
-
-PARSED FORM DATA:
-${JSON.stringify(parsedData, null, 2)}
-
-Generate a comprehensive analysis plan. Return a JSON object with exactly these keys:
-
-"plan": array of analysis rows. Each row covers one research topic and has:
-- section: section code and name (e.g. "S11. Shelter")
-- research_topic: short topic label (e.g. "Settlement safety — Impact Indicator 1")
-- relevant_questions: variable name(s) or label references
-- research_question: the specific analytical question this row answers, including calculation method for indicator rows (numerator/denominator/threshold)
-- indicator_link: either "Impact Ind. X: [name] — baseline X%, target Y%" OR "Outcome X.X: [name]" OR "Non-indicator: [purpose]"
-- visualization: specific chart type and what axes/breakdowns to show
+"plan": array of analysis rows, one per form section or research topic. Each row:
+- section: section code and name inferred from question labels (e.g. "S3. Safety")
+- research_topic: short label (e.g. "Settlement safety - Impact Ind. 1")
+- relevant_questions: variable name(s) from the form
+- research_question: specific analytical question including calculation method for indicator rows
+- indicator_link: "Impact Ind. X: [name] - baseline X%, target Y%" OR "Outcome X.X: [name]" OR "Non-indicator: [purpose]"
+- visualization: specific chart type and breakdowns
 - disaggregation: explicit disaggregation variables
-- use_of_information: who uses this, what decision/action it informs, by when
-- flags: specific action threshold if applicable (e.g. "Flag if >20% report X — escalate to Y"), OR analytical note (prefix with "Analytical note:"), OR protection flag (prefix with "Protection flag:"), OR null
+- use_of_information: who uses this and what decision it informs
+- flags: action threshold, analytical note (prefix "Analytical note:"), protection flag (prefix "Protection flag:"), or null
 - flag_type: "protection", "action", "note", or null
 
-"cleaning": array of data quality checks specific to this form (10-12 items). Each is a string describing a specific check with variable names.
+"cleaning": 8-10 data quality checks specific to this form. Each is a string with variable names.
 
-"crosstabs": array of recommended cross-tabulations, each with:
+"crosstabs": 5-8 recommended cross-tabulations, each with:
 - variables: variable names and labels
-- purpose: why this cross-tab matters for indicator interpretation or protection monitoring
+- purpose: why this matters for indicator interpretation or protection monitoring
 
-"gaps": array of coverage gaps between logframe and form, each with:
+"gaps": coverage gaps between logframe and form, each with:
 - severity: "critical", "warning", or "info"
 - indicator: indicator name or issue title
-- issue: one-line summary of the gap
+- issue: one-line summary
 - detail: explanation
 - action: concrete action required
 
-RULES:
-- Indicator rows must include exact calculation method (formula, threshold, denominator)
-- Protection flags must name the referring agency/cluster
-- Use actual variable names from the parsed data
-- For FCS: always note Yemen-specific thresholds if present in logframe
-- For social cohesion: always note normalized-average method if present
-- Return ONLY valid JSON. No markdown, no backticks, no preamble.`;
+RULES: Map each logframe indicator to the form questions that feed it. Indicator rows must include calculation method. Protection flags must name a referring focal point. For FCS note standard thresholds and weighted formula. For social cohesion batteries note normalized-average method. Return ONLY valid JSON. No markdown, no backticks, no preamble. All strings on one line.`;
 }
 
 // ── TSV parser ────────────────────────────────────────────────────────────────
@@ -255,7 +219,7 @@ function App() {
   const [activeTab, setActiveTab] = useState("plan");
   const [parsed, setParsed] = useState(null);
   const [planData, setPlanData] = useState(null);
-  const [step, setStep] = useState(null); // null | "parsing" | "generating" | "done"
+  const [step, setStep] = useState(null); // null | "generating" | "done"
   const [error, setError] = useState(null);
   const [isRateLimit, setIsRateLimit] = useState(false);
   const [copyMsg, setCopyMsg] = useState("");
@@ -273,30 +237,16 @@ function App() {
   const generate = async () => {
     setError(null); setIsRateLimit(false);
     try {
-      // Step 1: parse
-      setStep("parsing");
-      const parseRes = await callProxy({
-        model:"claude-sonnet-4-5-20250929", max_tokens:4096,
-        messages:[{ role:"user", content:buildParsePrompt(xlsInput, lfInput) }]
-      });
-      const parseRaw = parseRes.content?.map(b=>b.text||"").join("") || "{}";
-      let parseClean = parseRaw.replace(/```json|```/g,"").trim();
-      const fb = parseClean.indexOf("{"); const lb = parseClean.lastIndexOf("}");
-      if (fb !== -1 && lb > fb) parseClean = parseClean.substring(fb, lb+1);
-      const parsedObj = JSON.parse(parseClean);
-      setParsed(parsedObj);
-
-      // Step 2: generate plan
       setStep("generating");
-      const planRes = await callProxy({
-        model:"claude-sonnet-4-5-20250929", max_tokens:8192,
-        messages:[{ role:"user", content:buildAnalysisPlanPrompt(parsedObj) }]
+      const res = await callProxy({
+        model:"claude-sonnet-4-5-20250929", max_tokens:4096,
+        messages:[{ role:"user", content:buildCombinedPrompt(xlsInput, lfInput) }]
       });
-      const planRaw = planRes.content?.map(b=>b.text||"").join("") || "{}";
-      let planClean = planRaw.replace(/```json|```/g,"").trim();
-      const fb2 = planClean.indexOf("{"); const lb2 = planClean.lastIndexOf("}");
-      if (fb2 !== -1 && lb2 > fb2) planClean = planClean.substring(fb2, lb2+1);
-      const planObj = JSON.parse(planClean);
+      const raw = res.content?.map(b=>b.text||"").join("") || "{}";
+      let clean = raw.replace(/```json|```/g,"").trim();
+      const fb = clean.indexOf("{"); const lb = clean.lastIndexOf("}");
+      if (fb !== -1 && lb > fb) clean = clean.substring(fb, lb+1);
+      const planObj = JSON.parse(clean);
       setPlanData(planObj);
       setStep("done");
       setView(VIEWS.PLAN);
@@ -474,14 +424,12 @@ function App() {
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
             <button onClick={generate} disabled={!xlsInput.trim()||overLimit||!!step}
               style={{ ...btnPrimary, opacity:(!xlsInput.trim()||overLimit||!!step)?0.5:1 }}>
-              {step==="parsing" && <span style={{ width:14, height:14, border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"#fff", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} />}
               {step==="generating" && <span style={{ width:14, height:14, border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"#fff", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} />}
-              {step==="parsing" ? "Parsing form…" : step==="generating" ? "Generating plan…" : "Generate Analysis Plan"}
+              {step==="generating" ? "Generating plan…" : "Generate Analysis Plan"}
             </button>
             {step && (
               <div style={{ fontSize:12, color:C.textMuted }}>
-                {step==="parsing" && "Step 1 of 2 — extracting questions and indicator mappings…"}
-                {step==="generating" && "Step 2 of 2 — building analysis plan rows…"}
+                {step==="generating" && "Generating analysis plan — this may take 20–30 seconds…"}
               </div>
             )}
           </div>
