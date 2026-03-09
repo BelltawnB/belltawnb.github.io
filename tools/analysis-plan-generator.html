@@ -155,6 +155,47 @@ Outcome\tMean rCSI score\trCSI = less preferred×1 + borrow×2 + portions×1 + a
 Outcome\t% HHs with Acceptable food consumption\tFCS Acceptable ≥28 (standard thresholds). Formula: Cereals×2 + Pulses×3 + Veg×1 + Meat×4 + Dairy×4 + Sugar×0.5 + Oil×0.5.\t41%\t55%\tSex of HoH; Displacement status
 Outcome\t% reporting positive social cohesion\t3-item battery S9.1–S9.3. % selecting top-2 per question, averaged across items.\t38%\t52%\tSex of HoH; Displacement status; Governorate`;
 
+const DEMO_RESULT = {
+  "plan": [
+    {"section":"S2. Household Status","research_topic":"Displacement profile","relevant_questions":"hh_status","research_question":"Distribution of respondents by current status (IDP, Returnee, Host Community). Denominator: all respondents. Used to weight indicator results by displacement group.","indicator_link":"Non-indicator: Disaggregation variable for all indicators","visualization":"Pie chart x 3 categories; repeat by governorate (Delra, Velun, Saren)","disaggregation":"By governorate","use_of_information":"MEL coordinator confirms sample representativeness against program targeting records before indicator calculations","flags":null,"flag_type":null},
+    {"section":"S3. Safety","research_topic":"Settlement safety - Impact Indicator 1","relevant_questions":"safe_settle","research_question":"% HHs selecting 'Very safe' in safe_settle / total safe_settle respondents x 100. Threshold: top option only. Baseline 52%, target 70%.","indicator_link":"Impact Ind. 1: % HHs feeling very safe to settle - baseline 52%, target 70%","visualization":"Grouped bar (4-point scale) by sex of HoH and displacement status; headline = 'Very safe' % with 95% CI vs. baseline line","disaggregation":"By sex of HoH; by displacement status; by governorate","use_of_information":"Reported to donor at endline as primary impact indicator. Consortium MEL coordinator reviews disaggregated results to identify groups below target.","flags":"Flag if female-headed HHs report >10pp lower than male-headed - investigate unsafe_factors for gender-specific drivers","flag_type":"action"},
+    {"section":"S3. Safety","research_topic":"Drivers of safety concerns","relevant_questions":"unsafe_factors","research_question":"Among HHs reporting unsafe in safe_settle, what are the most common factors selected in unsafe_factors? Multi-select frequency analysis.","indicator_link":"Non-indicator: Informs Impact Ind. 1 interpretation","visualization":"Horizontal bar (% selecting each factor); filtered to unsafe respondents only","disaggregation":"By sex of HoH; by displacement status","use_of_information":"Protection focal point identifies specific safety drivers to inform referral pathways and advocacy","flags":"Protection flag: if 'Community discrimination' selected by >15% of IDP respondents - escalate to protection cluster","flag_type":"protection"},
+    {"section":"S4. Shelter","research_topic":"Housing adequacy","relevant_questions":"housing_type","research_question":"% of IDP and returnee HHs in inadequate housing (tent, unfinished, communal, or no shelter). Denominator: IDP and returnee HHs only.","indicator_link":"Non-indicator: Shelter adequacy context monitoring","visualization":"Grouped bar by housing type x displacement status; collapse to adequate/inadequate binary for summary","disaggregation":"By displacement status; by governorate","use_of_information":"Shelter sector officer estimates caseload for rehabilitation activities. Cross-reference against program beneficiary records.","flags":"Flag if >20% of IDP HHs remain in tent or communal shelter at endline - review shelter activity coverage","flag_type":"action"},
+    {"section":"S5. Income","research_topic":"Income sufficiency - Impact Indicator 2","relevant_questions":"income_sufficient","research_question":"% HHs selecting 'Sufficient' OR 'More than sufficient' in income_sufficient / total respondents x 100. Top-2 options combined. Baseline 18%, target 30%.","indicator_link":"Impact Ind. 2: % HHs with sufficient income - baseline 18%, target 30%","visualization":"Stacked bar (4-point) by sex of HoH and displacement status; headline = top-2 combined % vs. baseline with 95% CI","disaggregation":"By sex of HoH; by displacement status; by governorate","use_of_information":"Reported to donor at endline. Livelihoods officer cross-tabulates with activity type received to identify which interventions correlate with income improvement.","flags":"Analytical note: beneficiaries may underreport income sufficiency fearing reduced assistance. Triangulate against income_monthly and rCSI data.","flag_type":"note"},
+    {"section":"S6. Food Consumption","research_topic":"Food consumption score - Impact Ind. 3","relevant_questions":"fcs_cereals, fcs_pulses, fcs_veg, fcs_meat, fcs_dairy, fcs_sugar, fcs_oil","research_question":"FCS = Cereals x2 + Pulses x3 + Veg x1 + Meat x4 + Dairy x4 + Sugar x0.5 + Oil x0.5. Standard thresholds: Acceptable >=28, Borderline 21-27, Poor <=21. Prevalence of Acceptable FCS. Baseline 41%, target 55%.","indicator_link":"Impact Ind. 3 / Outcome: % HHs with Acceptable FCS - baseline 41%, target 55%","visualization":"Stacked bar (FCS category) by displacement status and sex of HoH; box plot of raw scores vs. baseline","disaggregation":"By sex of HoH; by displacement status; by governorate","use_of_information":"Reported at endline. FSL coordinator receives results for cluster reporting.","flags":"Analytical note: fruit food group absent from this form. FCS calculated using 7 groups not standard 8. Document this deviation in the analysis report.","flag_type":"note"},
+    {"section":"S7. Coping Strategies","research_topic":"rCSI score - Outcome","relevant_questions":"rcsi_less_pref, rcsi_borrow, rcsi_portions, rcsi_adults, rcsi_meals","research_question":"rCSI = less preferred x1 + borrow x2 + portions x1 + adults x3 + meals x1. Mean score per displacement group. Lower = better. Baseline 19, target 15.","indicator_link":"Outcome: Mean rCSI score - baseline 19, target 15","visualization":"Box plot by displacement status and sex of HoH; mean with 95% CI vs. baseline (19) and target (15)","disaggregation":"By sex of HoH; by displacement status; by governorate","use_of_information":"Reported at endline. MEL coordinator flags any increase above baseline as early warning of food security deterioration.","flags":"Analytical note: verify all-zero rCSI records - genuine non-use vs. missing data before calculating mean.","flag_type":"note"},
+    {"section":"S8. Documentation","research_topic":"Civil documentation gaps","relevant_questions":"missing_doc, doc_blocks_access","research_question":"% HHs reporting missing documents (missing_doc = yes) AND blocked access (doc_blocks_access = yes). This intersection defines the active referral population.","indicator_link":"Non-indicator: Protection - civil documentation caseload","visualization":"Two-bar chart: % missing doc; % of those where it blocks access. Cross-tab: missing x blocks access x displacement status","disaggregation":"By displacement status; by governorate","use_of_information":"Legal aid focal point estimates LCD caseload. Cross-tab defines priority referral population.","flags":"Protection flag: if >20% of IDP HHs report missing documents AND blocked access - legal aid team to open intake within 30 days","flag_type":"protection"},
+    {"section":"S9. Social Cohesion","research_topic":"Social cohesion battery - Outcome","relevant_questions":"idp_host_relations, community_trust, feel_accepted","research_question":"3-item battery. Method: calculate % selecting top-2 options per question separately, then average across all 3 items. Do NOT pool denominators. Baseline 38%, target 52%.","indicator_link":"Outcome: % reporting positive social cohesion - baseline 38%, target 52%","visualization":"Stacked bar for each of 3 items; summary bar of averaged top-2 % vs. baseline with 95% CI","disaggregation":"By sex of HoH; by displacement status; by governorate","use_of_information":"Reported to donor at endline. Program team identifies lowest-scoring items to prioritize community dialogue activities.","flags":"Analytical note: compute % top-2 per question first, then average. Do not pool. Flag if any item has <60% response rate.","flag_type":"note"},
+    {"section":"S9. Social Cohesion","research_topic":"Local authority engagement","relevant_questions":"authority_engagement","research_question":"% selecting top-2 options in authority_engagement (very involved / sometimes involved).","indicator_link":"Non-indicator: Governance engagement monitoring","visualization":"Bar (4-point scale) by displacement status; top-2 combined % vs. program expectation","disaggregation":"By displacement status; by governorate","use_of_information":"Program coordinator assesses visibility and reach of local authority engagement activities","flags":null,"flag_type":null}
+  ],
+  "cleaning": [
+    "Verify consent is present for all records before including in analysis. Remove non-consenting records.",
+    "Check hh_status has no missing values - this is the primary disaggregation variable for all indicators.",
+    "Validate FCS inputs: fcs_cereals through fcs_oil must be integers 0-7. Recode out-of-range values as missing before calculating FCS.",
+    "Verify rCSI inputs: rcsi_less_pref through rcsi_meals must be 0-7. Review all-zero records for genuine non-use vs. missing data.",
+    "Check for duplicate household IDs. Flag and investigate before including duplicates in analysis.",
+    "Review income_monthly for outliers: flag records >3 SD from governorate mean. Do not exclude without review.",
+    "Verify doc_blocks_access only has values where missing_doc = yes. Flag routing violations.",
+    "Check unsafe_factors is only populated for HHs reporting unsafe in safe_settle. Flag routing violations.",
+    "Verify governorate values match the three expected values (Delra, Velun, Saren). Recode any variants.",
+    "Document the missing fruit food group in FCS calculation. Add a footnote to all FCS outputs noting the 7-group deviation."
+  ],
+  "crosstabs": [
+    {"variables":"safe_settle x hh_status x sex of HoH","purpose":"Core disaggregation for Impact Ind. 1 - identify whether displacement status or gender gap is driving below-target results"},
+    {"variables":"income_sufficient x hh_status","purpose":"Attribute income improvement by displacement group for Impact Ind. 2"},
+    {"variables":"FCS category x rCSI score","purpose":"Triangulate food security - HHs with Poor FCS AND high rCSI are most food insecure; validates internal consistency"},
+    {"variables":"missing_doc x doc_blocks_access x hh_status","purpose":"Define active LCD referral population - IDP HHs with both = yes are priority caseload"},
+    {"variables":"idp_host_relations x feel_accepted x hh_status","purpose":"Test whether IDP self-reported acceptance aligns with perceived relations - divergence signals social desirability bias"},
+    {"variables":"safe_settle x unsafe_factors","purpose":"Confirm which safety factors drive low scores - essential for Impact Ind. 1 interpretation"}
+  ],
+  "gaps": [
+    {"severity":"critical","indicator":"FCS - standard 8-group formula","issue":"Fruit food group absent from this form","detail":"Standard FCS uses 8 food groups including fruit (weight x1). This form has 7 groups. The calculated FCS will be systematically lower than a full 8-group calculation.","action":"Document deviation in analysis report. Confirm whether baseline also used 7 groups before comparing."},
+    {"severity":"warning","indicator":"Outcome: % reporting positive social cohesion","issue":"3-item battery is below recommended minimum for cohesion measurement","detail":"Standard cohesion scales use 5-12 items for reliability. Results from a 3-item battery should be interpreted with caution.","action":"Flag in the analysis report that the cohesion measure has limited psychometric reliability."},
+    {"severity":"warning","indicator":"Impact Ind. 2: % HHs with sufficient income","issue":"No activity type variable in this form","detail":"The logframe disaggregation for Impact Ind. 2 includes activity type received but there is no such question in this form. Cross-tabulation by activity type is not possible from this survey alone.","action":"Cross-reference with program beneficiary database to link HHs to activity type."},
+    {"severity":"info","indicator":"General","issue":"No household roster or demographic composition questions","detail":"This form captures hh_status but not HH size or vulnerability markers. Per-capita calculations are not possible.","action":"Optional enhancement for future rounds. Not a logframe gap for the current indicator set."}
+  ]
+};
+
 // ── Prompt builders ───────────────────────────────────────────────────────────
 function buildCombinedPrompt(xlsform, logframe) {
   return `You are a senior MEL specialist. Given the XLSForm survey sheet and logframe below, generate a complete analysis plan in a single response.
@@ -232,6 +273,14 @@ function App() {
 
   const loadExample = () => { setXlsInput(EXAMPLE_XLSFORM); setLfInput(EXAMPLE_LOGFRAME); };
 
+  const runDemo = () => {
+    setXlsInput(EXAMPLE_XLSFORM);
+    setLfInput(EXAMPLE_LOGFRAME);
+    setPlanData(DEMO_RESULT);
+    setStep("done");
+    setView(VIEWS.PLAN);
+  };
+
   const flash = (msg) => { setCopyMsg(msg); setTimeout(()=>setCopyMsg(""),2000); };
 
   const generate = async () => {
@@ -246,7 +295,31 @@ function App() {
       let clean = raw.replace(/```json|```/g,"").trim();
       const fb = clean.indexOf("{"); const lb = clean.lastIndexOf("}");
       if (fb !== -1 && lb > fb) clean = clean.substring(fb, lb+1);
-      const planObj = JSON.parse(clean);
+
+      let planObj;
+      try {
+        planObj = JSON.parse(clean);
+      } catch(e1) {
+        // Tier 1: local repair
+        let repaired = clean
+          .replace(/,\s*([}\]])/g, "$1")
+          .replace(/[\u0000-\u001F\u007F]/g, " ");
+        try {
+          planObj = JSON.parse(repaired);
+        } catch(e2) {
+          // Tier 2: API repair
+          setStep("repairing");
+          const fixRes = await callProxy({
+            model:"claude-sonnet-4-5-20250929", max_tokens:4096,
+            messages:[{ role:"user", content:`Fix this malformed JSON object so it parses correctly. Return ONLY the fixed JSON object, nothing else:\n\n${clean}` }]
+          });
+          const fixRaw = fixRes.content?.map(b=>b.text||"").join("") || "{}";
+          let fixClean = fixRaw.replace(/```json|```/g,"").trim();
+          const fb2 = fixClean.indexOf("{"); const lb2 = fixClean.lastIndexOf("}");
+          if (fb2 !== -1 && lb2 > fb2) fixClean = fixClean.substring(fb2, lb2+1);
+          planObj = JSON.parse(fixClean);
+        }
+      }
       setPlanData(planObj);
       setStep("done");
       setView(VIEWS.PLAN);
@@ -385,6 +458,7 @@ function App() {
                   </span>
                 )}
                 <button className="btn-outline" style={{ fontSize:11, padding:"4px 10px" }} onClick={loadExample}>Load Flawed Example</button>
+                <button onClick={runDemo} style={{ fontSize:11, padding:"4px 12px", background:C.forest, color:"white", border:"none", borderRadius:6, cursor:"pointer", fontFamily:C.sans, fontWeight:600 }}>Try Demo ⚡</button>
               </div>
             </div>
             <textarea value={xlsInput} onChange={e=>setXlsInput(e.target.value)}
@@ -425,11 +499,12 @@ function App() {
             <button onClick={generate} disabled={!xlsInput.trim()||overLimit||!!step}
               style={{ ...btnPrimary, opacity:(!xlsInput.trim()||overLimit||!!step)?0.5:1 }}>
               {step==="generating" && <span style={{ width:14, height:14, border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"#fff", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} />}
-              {step==="generating" ? "Generating plan…" : "Generate Analysis Plan"}
+              {step==="generating" ? "Generating plan…" : step==="repairing" ? "Repairing response…" : "Generate Analysis Plan"}
             </button>
             {step && (
               <div style={{ fontSize:12, color:C.textMuted }}>
-                {step==="generating" && "Generating analysis plan — this may take 20–30 seconds…"}
+                {(step==="generating") && "Generating analysis plan — this may take 20–30 seconds…"}
+                {(step==="repairing") && "Fixing response format — almost done…"}
               </div>
             )}
           </div>
