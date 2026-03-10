@@ -365,101 +365,176 @@ function App() {
     if (!planData) return;
     const wb = XLSX.utils.book_new();
 
+    // Helper: sanitize cell values — prefix with space if starts with = + - @
+    const safe = v => {
+      if (v == null) return "";
+      const s = String(v);
+      return /^[=+\-@]/.test(s) ? " "+s : s;
+    };
+
+    // Helper: style a header row forest green, bold, white text
+    const styleHeaders = (ws, ncols) => {
+      for (let c = 0; c < ncols; c++) {
+        const addr = XLSX.utils.encode_cell({r:0, c});
+        if (!ws[addr]) continue;
+        ws[addr].s = { font:{bold:true,color:{rgb:"FFFFFF"},name:"Arial",sz:10}, fill:{fgColor:{rgb:"2D5016"}}, alignment:{wrapText:true,vertical:"top"} };
+      }
+    };
+
+    // Helper: wrap all data cells
+    const wrapData = (ws, nrows, ncols) => {
+      for (let r = 1; r < nrows; r++) {
+        for (let c = 0; c < ncols; c++) {
+          const addr = XLSX.utils.encode_cell({r, c});
+          if (!ws[addr]) continue;
+          ws[addr].s = { alignment:{wrapText:true,vertical:"top"}, font:{name:"Arial",sz:9} };
+        }
+      }
+    };
+
     // ── Sheet 1: Analysis Plan ──
     const planHeaders = ["Section","Research Topic","Q#s","Research Question","Indicator Link","Visualization","Disaggregation","Use of Information","Flags","Flag Type"];
-    const planRows = (planData.plan||[]).map(r=>[r.section,r.research_topic,r.relevant_questions,r.research_question,r.indicator_link,r.visualization,r.disaggregation,r.use_of_information,r.flags||"",r.flag_type||""]);
+    const planRows = (planData.plan||[]).map(r=>[
+      safe(r.section),safe(r.research_topic),safe(r.relevant_questions),safe(r.research_question),
+      safe(r.indicator_link),safe(r.visualization),safe(r.disaggregation),safe(r.use_of_information),
+      safe(r.flags),safe(r.flag_type)
+    ]);
     const planWS = XLSX.utils.aoa_to_sheet([planHeaders,...planRows]);
-    planWS["!cols"] = [18,22,14,40,22,24,20,32,36,10].map(w=>({wch:w}));
+    planWS["!cols"] = [16,20,14,38,22,22,18,30,34,10].map(w=>({wch:w}));
+    planWS["!rows"] = [{hpt:18},...planRows.map(()=>({hpt:60}))];
+    planWS["!freeze"] = {xSplit:0, ySplit:1};
+    styleHeaders(planWS, planHeaders.length);
+    wrapData(planWS, planRows.length+1, planHeaders.length);
     XLSX.utils.book_append_sheet(wb, planWS, "Analysis Plan");
 
     // ── Sheet 2: Data Cleaning ──
-    const cleanWS = XLSX.utils.aoa_to_sheet([["#","Data Quality Check"],
-      ...(planData.cleaning||[]).map((c,i)=>[i+1,c])]);
+    const cleanHeaders = ["#","Data Quality Check"];
+    const cleanRows = (planData.cleaning||[]).map((c,i)=>[i+1, safe(c)]);
+    const cleanWS = XLSX.utils.aoa_to_sheet([cleanHeaders,...cleanRows]);
     cleanWS["!cols"] = [{wch:4},{wch:90}];
+    cleanWS["!rows"] = [{hpt:18},...cleanRows.map(()=>({hpt:40}))];
+    styleHeaders(cleanWS, 2);
+    wrapData(cleanWS, cleanRows.length+1, 2);
     XLSX.utils.book_append_sheet(wb, cleanWS, "Data Cleaning");
 
     // ── Sheet 3: Cross-Tabs ──
-    const ctWS = XLSX.utils.aoa_to_sheet([["Variables","Analytical Purpose","Custom"],
-      ...allCrosstabs.map(c=>[c.variables,c.purpose,c.custom?"Yes":"Generated"])]);
-    ctWS["!cols"] = [{wch:40},{wch:60},{wch:12}];
+    const ctHeaders = ["Variables","Analytical Purpose","Source"];
+    const ctRows = allCrosstabs.map(c=>[safe(c.variables),safe(c.purpose),c.custom?"Custom":"Generated"]);
+    const ctWS = XLSX.utils.aoa_to_sheet([ctHeaders,...ctRows]);
+    ctWS["!cols"] = [{wch:36},{wch:60},{wch:12}];
+    ctWS["!rows"] = [{hpt:18},...ctRows.map(()=>({hpt:50}))];
+    styleHeaders(ctWS, 3);
+    wrapData(ctWS, ctRows.length+1, 3);
     XLSX.utils.book_append_sheet(wb, ctWS, "Cross-Tabs");
 
     // ── Sheet 4: Coverage Gaps ──
-    const gapWS = XLSX.utils.aoa_to_sheet([["Severity","Indicator","Issue","Detail","Action"],
-      ...(planData.gaps||[]).map(g=>[g.severity,g.indicator,g.issue,g.detail,g.action])]);
-    gapWS["!cols"] = [{wch:10},{wch:28},{wch:36},{wch:50},{wch:40}];
+    const gapHeaders = ["Severity","Indicator","Issue","Detail","Action"];
+    const gapRows = (planData.gaps||[]).map(g=>[safe(g.severity),safe(g.indicator),safe(g.issue),safe(g.detail),safe(g.action)]);
+    const gapWS = XLSX.utils.aoa_to_sheet([gapHeaders,...gapRows]);
+    gapWS["!cols"] = [{wch:10},{wch:26},{wch:34},{wch:48},{wch:38}];
+    gapWS["!rows"] = [{hpt:18},...gapRows.map(()=>({hpt:60}))];
+    styleHeaders(gapWS, 5);
+    wrapData(gapWS, gapRows.length+1, 5);
     XLSX.utils.book_append_sheet(wb, gapWS, "Coverage Gaps");
 
     // ── Sheet 5: Protection Flags ──
     const protData = (planData.plan||[]).filter(r=>r.flag_type==="protection");
-    const protWS = XLSX.utils.aoa_to_sheet([["Section","Research Topic","Q#s","Research Question","Protection Flag"],
-      ...protData.map(r=>[r.section,r.research_topic,r.relevant_questions,r.research_question,r.flags])]);
-    protWS["!cols"] = [{wch:18},{wch:24},{wch:14},{wch:42},{wch:50}];
+    const protHeaders = ["Section","Research Topic","Q#s","Research Question","Protection Flag"];
+    const protRows = protData.map(r=>[safe(r.section),safe(r.research_topic),safe(r.relevant_questions),safe(r.research_question),safe(r.flags)]);
+    const protWS = XLSX.utils.aoa_to_sheet([protHeaders,...protRows]);
+    protWS["!cols"] = [{wch:18},{wch:22},{wch:14},{wch:40},{wch:50}];
+    protWS["!rows"] = [{hpt:18},...protRows.map(()=>({hpt:60}))];
+    styleHeaders(protWS, 5);
+    wrapData(protWS, protRows.length+1, 5);
     XLSX.utils.book_append_sheet(wb, protWS, "Protection Flags");
 
     // ── Sheet 6: About ──
-    const aboutWS = XLSX.utils.aoa_to_sheet([
-      ["Analysis Plan Report"],
-      [""],
-      ["Generated by","Analysis Plan Generator — MEL Tools"],
-      [""],
+    const aboutData = [
+      ["ANALYSIS PLAN REPORT",""],
+      ["",""],
       ["Consultant","Burgen Belltawn"],
+      ["Title","MEL Specialist"],
       ["Email","belltawnb@gmail.com"],
       ["Website","https://belltawnb.github.io"],
-      [""],
-      ["Tool","https://belltawnb.github.io/tools/analysis-plan-generator.html"],
+      ["",""],
+      ["Tool","Analysis Plan Generator"],
+      ["Tool URL","https://belltawnb.github.io/tools/analysis-plan-generator.html"],
       ["Generated",""+new Date().toLocaleDateString("en-GB",{year:"numeric",month:"long",day:"numeric"})],
-      [""],
-      ["","This report was generated using AI-assisted MEL system design. All outputs"],
-      ["","should be reviewed by a qualified MEL professional before use in reporting."],
-    ]);
-    aboutWS["!cols"] = [{wch:18},{wch:70}];
+      ["",""],
+      ["Disclaimer","This report was generated using AI-assisted MEL system design."],
+      ["","All outputs should be reviewed by a qualified MEL professional before use in reporting."],
+      ["","Campbell's Law applies: indicators that become targets cease to be good measures."],
+    ];
+    const aboutWS = XLSX.utils.aoa_to_sheet(aboutData);
+    aboutWS["!cols"] = [{wch:16},{wch:72}];
+    // Style title
+    if (aboutWS["A1"]) aboutWS["A1"].s = {font:{bold:true,sz:13,name:"Arial",color:{rgb:"2D5016"}}};
+    // Bold labels
+    ["A3","A4","A5","A6","A8","A9","A10","A12"].forEach(addr=>{
+      if(aboutWS[addr]) aboutWS[addr].s = {font:{bold:true,name:"Arial",sz:10}};
+    });
     XLSX.utils.book_append_sheet(wb, aboutWS, "About");
 
     XLSX.writeFile(wb, "Analysis_Plan_Report.xlsx");
   };
 
+    const parseJSON = async (raw) => {
+    let clean = raw.replace(/```json|```/g,"").trim();
+    const fb = clean.indexOf("{"); const lb = clean.lastIndexOf("}");
+    if (fb !== -1 && lb > fb) clean = clean.substring(fb, lb+1);
+    try { return JSON.parse(clean); } catch(e1) {
+      let repaired = clean
+        .replace(/,[ \t\n\r]*([}\]])/g,"$1")
+        .replace(/[\u0000-\u001F\u007F]/g," ");
+      try { return JSON.parse(repaired); } catch(e2) {
+        setStep("repairing");
+        const fixRes = await callProxy({
+          model:"claude-sonnet-4-5-20250929", max_tokens:4096,
+          messages:[{role:"user",content:"Fix this malformed JSON so it parses correctly. Return ONLY valid JSON, nothing else:\n\n"+clean}]
+        });
+        const fixRaw = fixRes.content?.map(b=>b.text||"").join("")||"{}";
+        let fixClean = fixRaw.replace(/```json|```/g,"").trim();
+        const fb2=fixClean.indexOf("{"); const lb2=fixClean.lastIndexOf("}");
+        if(fb2!==-1&&lb2>fb2) fixClean=fixClean.substring(fb2,lb2+1);
+        return JSON.parse(fixClean);
+      }
+    }
+  };
+
   const generate = async () => {
     setError(null); setIsRateLimit(false);
     try {
+      // ── Call 1: Analysis plan rows only ──────────────────────────────────
       setStep("generating");
-      const res = await callProxy({
-        model:"claude-sonnet-4-5-20250929", max_tokens:8000,
+      const planRes = await callProxy({
+        model:"claude-sonnet-4-5-20250929", max_tokens:4096,
         messages:[{ role:"user", content:buildPlanPrompt(xlsInput, lfInput) }]
       });
-      const raw = res.content?.map(b=>b.text||"").join("") || "{}";
-      let clean = raw.replace(/```json|```/g,"").trim();
-      const fb = clean.indexOf("{"); const lb = clean.lastIndexOf("}");
-      if (fb !== -1 && lb > fb) clean = clean.substring(fb, lb+1);
-
-      let planObj;
-      try {
-        planObj = JSON.parse(clean);
-      } catch(e1) {
-        // Tier 1: local repair
-        let repaired = clean
-          .replace(/,\s*([}\]])/g, "$1")
-          .replace(/[\u0000-\u001F\u007F]/g, " ");
-        try {
-          planObj = JSON.parse(repaired);
-        } catch(e2) {
-          // Tier 2: API repair
-          setStep("repairing");
-          const fixRes = await callProxy({
-            model:"claude-sonnet-4-5-20250929", max_tokens:4096,
-            messages:[{ role:"user", content:`Fix this malformed JSON object so it parses correctly. Return ONLY the fixed JSON object, nothing else:\n\n${clean}` }]
-          });
-          const fixRaw = fixRes.content?.map(b=>b.text||"").join("") || "{}";
-          let fixClean = fixRaw.replace(/```json|```/g,"").trim();
-          const fb2 = fixClean.indexOf("{"); const lb2 = fixClean.lastIndexOf("}");
-          if (fb2 !== -1 && lb2 > fb2) fixClean = fixClean.substring(fb2, lb2+1);
-          planObj = JSON.parse(fixClean);
-        }
-      }
+      const planRaw = planRes.content?.map(b=>b.text||"").join("") || "{}";
+      const planObj = await parseJSON(planRaw);
       setPlanData(planObj);
-      setStep("done");
       setView(VIEWS.PLAN);
+
+      // ── Call 2: Supporting tabs (cleaning, crosstabs, gaps) ──────────────
+      setStep("supporting");
+      const suppRes = await callProxy({
+        model:"claude-sonnet-4-5-20250929", max_tokens:4096,
+        messages:[{ role:"user", content:buildSupportingPrompt(xlsInput, lfInput, planObj.plan||[]) }]
+      });
+      const suppRaw = suppRes.content?.map(b=>b.text||"").join("") || "{}";
+      const suppObj = await parseJSON(suppRaw);
+      setPlanData(p=>({...p,
+        cleaning: suppObj.cleaning||[],
+        crosstabs: suppObj.crosstabs||[],
+        gaps: suppObj.gaps||[]
+      }));
+      setStep("done");
     } catch(e) {
+      setStep(null);
+      setIsRateLimit(e.isRateLimit||false);
+      setError(e.message);
+    }
+  } catch(e) {
       setStep(null);
       setIsRateLimit(e.isRateLimit||false);
       setError(e.message);
