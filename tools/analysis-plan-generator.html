@@ -531,11 +531,6 @@ function App() {
       setIsRateLimit(e.isRateLimit||false);
       setError(e.message);
     }
-  } catch(e) {
-      setStep(null);
-      setIsRateLimit(e.isRateLimit||false);
-      setError(e.message);
-    }
   };
 
   const copyPlanTSV = () => {
