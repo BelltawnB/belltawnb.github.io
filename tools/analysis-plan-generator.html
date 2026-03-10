@@ -198,8 +198,8 @@ const DEMO_RESULT = {
 };
 
 // ── Prompt builders ───────────────────────────────────────────────────────────
-function buildCombinedPrompt(xlsform, logframe) {
-  return `You are a senior MEL specialist. Given the XLSForm survey sheet and logframe below, generate a complete analysis plan in a single response.
+function buildPlanPrompt(xlsform, logframe) {
+  return `You are a senior MEL specialist. Generate an analysis plan from the XLSForm and logframe below.
 
 XLSFORM SURVEY SHEET (tab-separated):
 ${xlsform}
@@ -207,13 +207,11 @@ ${xlsform}
 LOGFRAME:
 ${logframe || "No logframe provided."}
 
-Return a JSON object with exactly these keys:
-
-"plan": array of analysis rows, one per form section or research topic. Each row:
-- section: section code and name inferred from question labels (e.g. "S3. Safety")
-- research_topic: short label (e.g. "Settlement safety - Impact Ind. 1")
+Return a JSON object with ONE key: "plan" — array of analysis rows, one per form section or research topic. Each row:
+- section: section code and name (e.g. "S3. Safety")
+- research_topic: short label
 - relevant_questions: variable name(s) from the form
-- research_question: specific analytical question including calculation method for indicator rows
+- research_question: specific analytical question including calculation method for indicator rows (numerator/denominator/threshold)
 - indicator_link: "Impact Ind. X: [name] - baseline X%, target Y%" OR "Outcome X.X: [name]" OR "Non-indicator: [purpose]"
 - visualization: specific chart type and breakdowns
 - disaggregation: explicit disaggregation variables
@@ -221,10 +219,27 @@ Return a JSON object with exactly these keys:
 - flags: action threshold, analytical note (prefix "Analytical note:"), protection flag (prefix "Protection flag:"), or null
 - flag_type: "protection", "action", "note", or null
 
-"cleaning": 8-10 data quality checks specific to this form. Each is a string with variable names.
+RULES: Map each logframe indicator to form questions. Indicator rows must include exact calculation method. Protection flags must name a focal point. For FCS note weights and thresholds. For cohesion batteries note normalized-average method. Return ONLY valid JSON. No markdown, no preamble.`;
+}
 
-"crosstabs": 5-8 recommended cross-tabulations, each with:
-- variables: variable names and labels
+function buildSupportingPrompt(xlsform, logframe, planRows) {
+  return `You are a senior MEL specialist. Given the XLSForm, logframe, and analysis plan rows below, generate the three supporting outputs.
+
+XLSFORM (tab-separated):
+${xlsform}
+
+LOGFRAME:
+${logframe || "No logframe provided."}
+
+ANALYSIS PLAN ROWS (for context):
+${JSON.stringify(planRows.map(r=>({section:r.section,topic:r.research_topic,questions:r.relevant_questions,indicator:r.indicator_link})))}
+
+Return a JSON object with exactly these three keys:
+
+"cleaning": 8-10 data quality checks specific to this form. Each is a string naming specific variables.
+
+"crosstabs": 6-8 recommended cross-tabulations, each with:
+- variables: variable names
 - purpose: why this matters for indicator interpretation or protection monitoring
 
 "gaps": coverage gaps between logframe and form, each with:
@@ -234,7 +249,7 @@ Return a JSON object with exactly these keys:
 - detail: explanation
 - action: concrete action required
 
-RULES: Map each logframe indicator to the form questions that feed it. Indicator rows must include calculation method. Protection flags must name a referring focal point. For FCS note standard thresholds and weighted formula. For social cohesion batteries note normalized-average method. Return ONLY valid JSON. No markdown, no backticks, no preamble. All strings on one line.`;
+Return ONLY valid JSON. No markdown, no preamble.`;
 }
 
 // ── Tab-specific re-run prompt ───────────────────────────────────────────────
@@ -616,15 +631,16 @@ function App() {
 
           {/* Generate button */}
           <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-            <button onClick={generate} disabled={!xlsInput.trim()||overLimit||!!step}
+            <button onClick={generate} disabled={!xlsInput.trim()||overLimit||(!!step&&step!=="done")}
               style={{ ...btnPrimary, opacity:(!xlsInput.trim()||overLimit||!!step)?0.5:1 }}>
-              {step==="generating" && <span style={{ width:14, height:14, border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"#fff", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} />}
-              {step==="generating" ? "Generating plan…" : step==="repairing" ? "Repairing response…" : "Generate Analysis Plan"}
+              {(step==="generating"||step==="supporting"||step==="repairing") && <span style={{ width:14, height:14, border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"#fff", borderRadius:"50%", animation:"spin 0.8s linear infinite", display:"inline-block" }} />}
+              {step==="generating" ? "Generating plan…" : step==="supporting" ? "Generating supporting tabs…" : step==="repairing" ? "Repairing response…" : "Generate Analysis Plan"}
             </button>
             {step && (
               <div style={{ fontSize:12, color:C.textMuted }}>
-                {(step==="generating") && "Generating analysis plan — this may take 20–30 seconds…"}
-                {(step==="repairing") && "Fixing response format — almost done…"}
+                {step==="generating" && "Step 1 of 2 — generating analysis plan rows…"}
+                {step==="supporting" && "Step 2 of 2 — generating cleaning checks, cross-tabs, and gaps…"}
+                {step==="repairing" && "Fixing response format — almost done…"}
               </div>
             )}
           </div>
