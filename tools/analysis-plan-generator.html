@@ -236,6 +236,31 @@ Return a JSON object with exactly these keys:
 RULES: Map each logframe indicator to the form questions that feed it. Indicator rows must include calculation method. Protection flags must name a referring focal point. For FCS note standard thresholds and weighted formula. For social cohesion batteries note normalized-average method. Return ONLY valid JSON. No markdown, no backticks, no preamble. All strings on one line.`;
 }
 
+// ── Tab-specific re-run prompt ───────────────────────────────────────────────
+function buildTabPrompt(tab, xlsform, logframe, existing) {
+  const ctx = `XLSForm (tab-separated):
+${xlsform}
+
+Logframe:
+${logframe||"None provided."}
+
+Existing analysis plan rows:
+${JSON.stringify((existing?.plan||[]).map(r=>({section:r.section,research_topic:r.research_topic,relevant_questions:r.relevant_questions})))}`; 
+  if (tab==="cleaning") return `${ctx}
+
+Generate 8-10 data quality checks specific to this form. Return JSON: {"cleaning":["check 1","check 2",...]}. Each check is a string with specific variable names. No markdown, no preamble.`;
+  if (tab==="crosstabs") return `${ctx}
+
+Generate 6-8 recommended cross-tabulations for indicator interpretation and protection monitoring. Return JSON: {"crosstabs":[{"variables":"...","purpose":"..."},...]}. No markdown, no preamble.`;
+  if (tab==="protection") return `${ctx}
+
+Review the existing analysis plan rows and regenerate ONLY the rows that should have protection flags. Return JSON: {"plan":[...rows with flag_type \"protection\" only...]}. Each row must have: section, research_topic, relevant_questions, research_question, indicator_link, visualization, disaggregation, use_of_information, flags (must start with \"Protection flag:\"), flag_type: \"protection\". No markdown, no preamble.`;
+  if (tab==="gaps") return `${ctx}
+
+Identify coverage gaps between the logframe and the form. Return JSON: {"gaps":[{"severity":"critical|warning|info","indicator":"...","issue":"...","detail":"...","action":"..."},...]}. No markdown, no preamble.`;
+  return "";
+}
+
 // ── TSV parser ────────────────────────────────────────────────────────────────
 function parseTSV(text) {
   const lines = text.trim().split("\n");
@@ -279,6 +304,43 @@ function App() {
     setPlanData(DEMO_RESULT);
     setStep("done");
     setView(VIEWS.PLAN);
+  };
+
+  const [rerunning, setRerunning] = useState(null); // tab name being rerun
+  const [rerunError, setRerunError] = useState(null);
+
+  const rerunTab = async (tab) => {
+    if (!xlsInput.trim()) return;
+    setRerunning(tab); setRerunError(null);
+    try {
+      const res = await callProxy({
+        model:"claude-sonnet-4-5-20250929", max_tokens:4096,
+        messages:[{ role:"user", content:buildTabPrompt(tab, xlsInput, lfInput, planData) }]
+      });
+      const raw = res.content?.map(b=>b.text||"").join("") || "{}";
+      let clean = raw.replace(/```json|```/g,"").trim();
+      const fb = clean.indexOf("{"); const lb = clean.lastIndexOf("}");
+      if (fb !== -1 && lb > fb) clean = clean.substring(fb, lb+1);
+      else {
+        const fa = clean.indexOf("["); const la = clean.lastIndexOf("]");
+        if (fa !== -1 && la > fa) clean = `{"result":${clean.substring(fa, la+1)}}`;
+      }
+      const obj = JSON.parse(clean);
+      if (tab==="protection") {
+        const newProtRows = obj.plan || obj.result || [];
+        setPlanData(p=>{
+          const nonProt = (p.plan||[]).filter(r=>r.flag_type!=="protection");
+          return {...p, plan:[...nonProt, ...newProtRows]};
+        });
+      } else {
+        const key = tab==="cleaning" ? "cleaning" : tab==="crosstabs" ? "crosstabs" : tab==="gaps" ? "gaps" : null;
+        if (key) setPlanData(p=>({...p, [key]: obj[key] || obj.result || p[key]}));
+      }
+    } catch(e) {
+      setRerunError(e.message);
+    } finally {
+      setRerunning(null);
+    }
   };
 
   const flash = (msg) => { setCopyMsg(msg); setTimeout(()=>setCopyMsg(""),2000); };
@@ -457,8 +519,7 @@ function App() {
                     {rowCount} question{rowCount!==1?"s":""} {overLimit?"— over 50 limit":"detected"}
                   </span>
                 )}
-                <button className="btn-outline" style={{ fontSize:11, padding:"4px 10px" }} onClick={loadExample}>Load Flawed Example</button>
-                <button onClick={runDemo} style={{ fontSize:11, padding:"4px 12px", background:C.forest, color:"white", border:"none", borderRadius:6, cursor:"pointer", fontFamily:C.sans, fontWeight:600 }}>Try Demo ⚡</button>
+                <button onClick={runDemo} style={{ fontSize:11, padding:"4px 14px", background:C.forest, color:"white", border:"none", borderRadius:6, cursor:"pointer", fontFamily:C.sans, fontWeight:600 }}>See Demo Report ⚡</button>
               </div>
             </div>
             <textarea value={xlsInput} onChange={e=>setXlsInput(e.target.value)}
@@ -572,7 +633,7 @@ function App() {
             )}
           </div>
 
-          <div style={{ padding:"20px 24px", overflowX:"auto" }}>
+          <div style={{ padding:"20px 16px", overflowX:"auto", maxWidth:"100vw" }}>
 
             {/* ANALYSIS PLAN */}
             {activeTab==="plan" && <>
@@ -588,14 +649,14 @@ function App() {
                       <tr className="sec-hdr"><td colSpan={8} style={{ padding:"7px 10px" }}><span style={{ fontFamily:C.mono, fontSize:8, letterSpacing:2, textTransform:"uppercase", color:C.forest, fontWeight:600 }}>{section}</span></td></tr>
                       {rows.map((row,ri)=>(
                         <tr key={ri} style={{ borderBottom:`1px solid ${C.border}`, background:ri%2===0?C.surface:C.surfaceAlt }}>
-                          <td style={{ padding:"8px 10px", color:C.textMid, minWidth:120, verticalAlign:"top", fontWeight:500 }}>{row.research_topic}</td>
+                          <td style={{ padding:"8px 10px", color:C.textMid, maxWidth:110, minWidth:80, verticalAlign:"top", fontWeight:500 }}>{row.research_topic}</td>
                           <td style={{ padding:"8px 10px", color:C.forest, fontFamily:C.mono, fontSize:10, whiteSpace:"nowrap", verticalAlign:"top" }}>{row.relevant_questions}</td>
-                          <td style={{ padding:"8px 10px", color:C.text, minWidth:200, verticalAlign:"top", lineHeight:1.55 }}>{row.research_question}</td>
-                          <td style={{ padding:"8px 10px", verticalAlign:"top", minWidth:130 }}><IndBadge link={row.indicator_link} /></td>
-                          <td style={{ padding:"8px 10px", color:C.textMuted, minWidth:140, verticalAlign:"top", fontSize:11, lineHeight:1.5 }}>{row.visualization}</td>
-                          <td style={{ padding:"8px 10px", color:C.textMuted, minWidth:130, verticalAlign:"top", fontSize:11, lineHeight:1.5 }}>{row.disaggregation}</td>
-                          <td style={{ padding:"8px 10px", color:C.textMid, minWidth:180, verticalAlign:"top", lineHeight:1.5 }}>{row.use_of_information}</td>
-                          <td style={{ padding:"8px 10px", verticalAlign:"top", minWidth:150 }}><FlagBadge text={row.flags} type={row.flag_type} /></td>
+                          <td style={{ padding:"8px 10px", color:C.text, maxWidth:200, minWidth:160, verticalAlign:"top", lineHeight:1.55, wordBreak:"break-word" }}>{row.research_question}</td>
+                          <td style={{ padding:"8px 10px", verticalAlign:"top", maxWidth:120, minWidth:100 }}><IndBadge link={row.indicator_link} /></td>
+                          <td style={{ padding:"8px 10px", color:C.textMuted, maxWidth:130, minWidth:100, verticalAlign:"top", fontSize:11, lineHeight:1.5, wordBreak:"break-word" }}>{row.visualization}</td>
+                          <td style={{ padding:"8px 10px", color:C.textMuted, maxWidth:110, minWidth:90, verticalAlign:"top", fontSize:11, lineHeight:1.5 }}>{row.disaggregation}</td>
+                          <td style={{ padding:"8px 10px", color:C.textMid, maxWidth:160, minWidth:120, verticalAlign:"top", lineHeight:1.5, wordBreak:"break-word" }}>{row.use_of_information}</td>
+                          <td style={{ padding:"8px 10px", verticalAlign:"top", maxWidth:140, minWidth:100 }}><FlagBadge text={row.flags} type={row.flag_type} /></td>
                         </tr>
                       ))}
                     </React.Fragment>
@@ -610,7 +671,13 @@ function App() {
             {/* DATA CLEANING */}
             {activeTab==="cleaning" && <>
               <div style={{ maxWidth:760 }}>
-                <div style={{ background:C.sagePale, border:`1px solid #B8D090`, borderRadius:6, padding:"10px 14px", marginBottom:16, fontSize:12, color:C.textMid, lineHeight:1.6 }}>
+                <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:8 }}>
+                <button className="btn-outline" style={{ fontSize:11, padding:"4px 12px" }} onClick={()=>rerunTab("cleaning")} disabled={!!rerunning}>
+                  {rerunning==="cleaning" ? "Regenerating…" : "↺ Re-run"}
+                </button>
+                {rerunError && rerunning===null && <span style={{ fontSize:11, color:C.rust, marginLeft:8 }}>{rerunError}</span>}
+              </div>
+              <div style={{ background:C.sagePale, border:`1px solid #B8D090`, borderRadius:6, padding:"10px 14px", marginBottom:16, fontSize:12, color:C.textMid, lineHeight:1.6 }}>
                   Run these checks on the raw data export <strong>before</strong> any indicator calculation. Specific to this form's structure and the quality risks identified from your inputs.
                 </div>
                 {(planData.cleaning||[]).map((item,i)=>(
@@ -628,6 +695,11 @@ function App() {
             {/* CROSS-TABS */}
             {activeTab==="crosstabs" && <>
               <div style={{ maxWidth:940 }}>
+                <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:8 }}>
+                  <button className="btn-outline" style={{ fontSize:11, padding:"4px 12px" }} onClick={()=>rerunTab("crosstabs")} disabled={!!rerunning}>
+                    {rerunning==="crosstabs" ? "Regenerating…" : "↺ Re-run"}
+                  </button>
+                </div>
                 {/* Builder */}
                 <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:"14px 18px", marginBottom:20 }}>
                   <div style={{ fontFamily:C.mono, fontSize:9, color:C.forest, letterSpacing:2, textTransform:"uppercase", marginBottom:10 }}>+ Add Cross-Tabulation</div>
@@ -683,6 +755,11 @@ function App() {
             {/* COVERAGE GAPS */}
             {activeTab==="gaps" && (
               <div style={{ maxWidth:840 }}>
+                <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:8 }}>
+                  <button className="btn-outline" style={{ fontSize:11, padding:"4px 12px" }} onClick={()=>rerunTab("gaps")} disabled={!!rerunning}>
+                    {rerunning==="gaps" ? "Regenerating…" : "↺ Re-run"}
+                  </button>
+                </div>
                 <div style={{ background:C.amberPale, border:`1px solid ${C.amberBorder}`, borderRadius:6, padding:"10px 14px", marginBottom:20, fontSize:12, color:C.textMid, lineHeight:1.6 }}>
                   Mismatches between your logframe indicators and this form's question coverage. <strong>Critical</strong> gaps affect indicator reportability. <strong>Warnings</strong> affect completeness.
                 </div>
@@ -712,6 +789,11 @@ function App() {
             {/* PROTECTION FLAGS */}
             {activeTab==="protection" && (
               <div style={{ maxWidth:820 }}>
+                <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:8 }}>
+                  <button className="btn-outline" style={{ fontSize:11, padding:"4px 12px" }} onClick={()=>rerunTab("protection")} disabled={!!rerunning}>
+                    {rerunning==="protection" ? "Regenerating…" : "↺ Re-run"}
+                  </button>
+                </div>
                 <div style={{ background:C.rustPale, border:`1px solid ${C.rustBorder}`, borderRadius:6, padding:"10px 14px", marginBottom:20, fontSize:12, color:C.textMid, lineHeight:1.6 }}>
                   <strong style={{ color:C.rust }}>{protRows.length} rows</strong> contain protection flags requiring review by the relevant focal point before the analysis report is finalized.
                 </div>
