@@ -223,7 +223,7 @@ RULES: Map each logframe indicator to form questions. Indicator rows must includ
 }
 
 function buildSupportingPrompt(xlsform, logframe, planRows) {
-  const vars = [...new Set(planRows.flatMap(r=>(r.relevant_questions||"").split(/[,\s]+/).filter(Boolean)))].join(", ");
+  const vars = [...new Set(planRows.flatMap(r=>{ const q=r.relevant_questions; if(Array.isArray(q)) return q; return (q||"").split(/[,\s]+/).filter(Boolean); }))].join(", ");
   const indicators = planRows.filter(r=>r.indicator_link&&!r.indicator_link.startsWith("Non-indicator")).map(r=>r.indicator_link).join("; ");
   return `You are a senior MEL specialist. Generate three supporting outputs for an analysis plan.
 
