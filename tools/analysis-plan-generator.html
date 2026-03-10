@@ -425,7 +425,7 @@ function App() {
       setStep("generating");
       const res = await callProxy({
         model:"claude-sonnet-4-5-20250929", max_tokens:8000,
-        messages:[{ role:"user", content:buildCombinedPrompt(xlsInput, lfInput) }]
+        messages:[{ role:"user", content:buildPlanPrompt(xlsInput, lfInput) }]
       });
       const raw = res.content?.map(b=>b.text||"").join("") || "{}";
       let clean = raw.replace(/```json|```/g,"").trim();
