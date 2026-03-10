@@ -223,31 +223,23 @@ RULES: Map each logframe indicator to form questions. Indicator rows must includ
 }
 
 function buildSupportingPrompt(xlsform, logframe, planRows) {
-  return `You are a senior MEL specialist. Given the XLSForm, logframe, and analysis plan rows below, generate the three supporting outputs.
+  const vars = [...new Set(planRows.flatMap(r=>(r.relevant_questions||"").split(/[,\s]+/).filter(Boolean)))].join(", ");
+  const indicators = planRows.filter(r=>r.indicator_link&&!r.indicator_link.startsWith("Non-indicator")).map(r=>r.indicator_link).join("; ");
+  return `You are a senior MEL specialist. Generate three supporting outputs for an analysis plan.
 
-XLSFORM (tab-separated):
-${xlsform}
+FORM VARIABLES: ${vars}
 
-LOGFRAME:
-${logframe || "No logframe provided."}
+LOGFRAME: ${logframe||"No logframe provided."}
 
-ANALYSIS PLAN ROWS (for context):
-${JSON.stringify(planRows.map(r=>({section:r.section,topic:r.research_topic,questions:r.relevant_questions,indicator:r.indicator_link})))}
+INDICATOR LINKS: ${indicators}
 
 Return a JSON object with exactly these three keys:
 
-"cleaning": 8-10 data quality checks specific to this form. Each is a string naming specific variables.
+"cleaning": array of 8 data quality check strings, each naming specific variables from the form.
 
-"crosstabs": 6-8 recommended cross-tabulations, each with:
-- variables: variable names
-- purpose: why this matters for indicator interpretation or protection monitoring
+"crosstabs": array of 6 objects, each with "variables" (variable names) and "purpose" (why this cross-tab matters for indicator interpretation).
 
-"gaps": coverage gaps between logframe and form, each with:
-- severity: "critical", "warning", or "info"
-- indicator: indicator name or issue title
-- issue: one-line summary
-- detail: explanation
-- action: concrete action required
+"gaps": array of coverage gaps, each with "severity" (critical/warning/info), "indicator", "issue" (one line), "detail", and "action".
 
 Return ONLY valid JSON. No markdown, no preamble.`;
 }
@@ -517,17 +509,22 @@ function App() {
 
       // ── Call 2: Supporting tabs (cleaning, crosstabs, gaps) ──────────────
       setStep("supporting");
-      const suppRes = await callProxy({
-        model:"claude-sonnet-4-5-20250929", max_tokens:4096,
-        messages:[{ role:"user", content:buildSupportingPrompt(xlsInput, lfInput, planObj.plan||[]) }]
-      });
-      const suppRaw = suppRes.content?.map(b=>b.text||"").join("") || "{}";
-      const suppObj = await parseJSON(suppRaw);
-      setPlanData(p=>({...p,
-        cleaning: suppObj.cleaning||[],
-        crosstabs: suppObj.crosstabs||[],
-        gaps: suppObj.gaps||[]
-      }));
+      try {
+        const suppRes = await callProxy({
+          model:"claude-sonnet-4-5-20250929", max_tokens:4096,
+          messages:[{ role:"user", content:buildSupportingPrompt(xlsInput, lfInput, planObj.plan||[]) }]
+        });
+        const suppRaw = suppRes.content?.map(b=>b.text||"").join("") || "{}";
+        const suppObj = await parseJSON(suppRaw);
+        setPlanData(p=>({...p,
+          cleaning: suppObj.cleaning||[],
+          crosstabs: suppObj.crosstabs||[],
+          gaps: suppObj.gaps||[]
+        }));
+      } catch(e2) {
+        // Call 2 failed — plan is still shown, warn user to re-run tabs
+        setPlanData(p=>({...p, _suppError: e2.message||"Supporting tabs failed — use ↺ Re-run on each tab."}));
+      }
       setStep("done");
     } catch(e) {
       setStep(null);
@@ -743,6 +740,13 @@ function App() {
       {/* ═══ PLAN VIEW ═══ */}
       {view === VIEWS.PLAN && planData && (
         <>
+          {/* Call 2 error warning */}
+          {planData._suppError && (
+            <div style={{ background:"#FDF5F0", borderBottom:"1px solid #E8C4B4", padding:"8px 24px", fontSize:11, color:"#8B4513" }}>
+              ⚠ Supporting tabs (Data Cleaning, Cross-Tabs, Coverage Gaps) did not load — {planData._suppError} Use the ↺ Re-run button on each tab.
+            </div>
+          )}
+
           {/* Summary bar */}
           <div className="no-print" style={{ borderBottom:`1px solid ${C.border}`, padding:"8px 24px", display:"flex", gap:28, background:C.surface, flexWrap:"wrap" }}>
             {[
@@ -800,7 +804,7 @@ function App() {
                       {rows.map((row,ri)=>(
                         <tr key={ri} style={{ borderBottom:`1px solid ${C.border}`, background:ri%2===0?C.surface:C.surfaceAlt }}>
                           <td style={{ padding:"8px 10px", color:C.textMid, maxWidth:110, minWidth:80, verticalAlign:"top", fontWeight:500 }}>{row.research_topic}</td>
-                          <td style={{ padding:"8px 10px", color:C.forest, fontFamily:C.mono, fontSize:10, verticalAlign:"top", maxWidth:90, wordBreak:"break-all", lineHeight:1.4 }}>{row.relevant_questions}</td>
+                          <td style={{ padding:"8px 10px", color:C.forest, fontFamily:C.mono, fontSize:10, verticalAlign:"top", maxWidth:85, overflowWrap:"break-word", wordBreak:"normal", lineHeight:1.5 }}>{row.relevant_questions}</td>
                           <td style={{ padding:"8px 10px", color:C.text, maxWidth:200, minWidth:160, verticalAlign:"top", lineHeight:1.55, wordBreak:"break-word" }}>{row.research_question}</td>
                           <td style={{ padding:"8px 10px", verticalAlign:"top", maxWidth:120, minWidth:100 }}><IndBadge link={row.indicator_link} /></td>
                           <td style={{ padding:"8px 10px", color:C.textMuted, maxWidth:130, minWidth:100, verticalAlign:"top", fontSize:11, lineHeight:1.5, wordBreak:"break-word" }}>{row.visualization}</td>
