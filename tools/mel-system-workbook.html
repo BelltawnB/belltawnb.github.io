@@ -1152,11 +1152,20 @@ function App() {
       const rows = inds.map((ind,i) => ({
         ...makeRow(REGISTER_FIELDS),
         _id: Date.now()+i,
-        name: ind.name||ind.indicator_name||'',
-        definition: ind.definition||ind.authoritative_definition||'',
-        unit: ind.unit||'',
-        numerator: ind.numerator||'',
-        denominator: ind.denominator||'',
+        indicatorId:         ind.id || ind.indicatorId || '',
+        name:                ind.name || ind.indicator_name || '',
+        definition:          ind.definition || ind.authoritative_definition || '',
+        unit:                ind.unit || '',
+        numerator:           ind.numerator || '',
+        denominator:         ind.denominator || '',
+        baseline:            ind.baseline || '',
+        target:              ind.target || '',
+        disaggregations:     Array.isArray(ind.disaggregations) ? ind.disaggregations.join(', ') : (ind.disaggregations || ''),
+        frequency:           ind.frequency || '',
+        meansOfVerification: ind.meansOfVerification || '',
+        questionSource:      ind.surveyQuestions || ind.questionSource || '',
+        analysisMethod:      ind.analysisMethod || '',
+        audience:            ind.audience || '',
       }));
       setRegister(prev => [...prev, ...rows]);
       setModal(null); setImportText('');
@@ -1342,6 +1351,9 @@ function App() {
               groups={TOOLS_GROUPS}
               note="The Indicators Covered field is a free-text list. Type indicator names separated by commas, or copy them from the Indicator Register. Keeping these in sync with the Register ensures every indicator has a traceable data source."
             />
+            <div style={{background:'#FFF8E1',border:'1px solid #E8D89A',borderRadius:6,padding:'9px 14px',marginBottom:16,fontSize:12,color:'#6B5010',lineHeight:1.6}}>
+              💡 Need to design or refine a data collection instrument? The <strong>Survey Planner</strong> tool (coming soon) generates structured, decision-ready survey plans grounded in your program specifications, donor requirements, and logframe.
+            </div>
             <div style={{display:'flex',justifyContent:'flex-end',marginBottom:12,gap:8}}>
               <button onClick={() => {
                 // Auto-suggest next tool ID
@@ -1463,6 +1475,12 @@ function App() {
           <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste rows from Excel here…"
             style={{width:'100%',height:160,padding:'10px 12px',borderRadius:6,border:`1.5px solid ${importErr?C.red:C.border}`,fontFamily:"'IBM Plex Mono',monospace",fontSize:12,resize:'vertical',outline:'none'}}
           />
+          <div style={{marginTop:6,fontSize:11,color:C.muted,lineHeight:1.6}}>
+            <a href="https://belltawnb.github.io/assets/Logframe_Template.xlsx" download
+               style={{color:C.ochre,textDecoration:'none',fontWeight:500}}>
+              Download logframe template ↓
+            </a>
+          </div>
           {importErr && <div style={{color:C.red,fontSize:12,marginTop:6,lineHeight:1.6}}>⚠ {importErr}</div>}
           <div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:14}}>
             <button onClick={() => { setModal(null); setImportErr(''); setPendingParse(null); }} style={{background:'none',border:`1px solid ${C.border}`,borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:13,color:C.inkSoft}}>Cancel</button>
@@ -1504,15 +1522,15 @@ function App() {
 
       {/* ── JSON import modal ── */}
       {modal === 'json' && (
-        <Modal title="Import JSON (IQR / shared schema)" onClose={() => { setModal(null); setImportErr(''); }}>
-          <p style={{fontSize:12,color:C.inkSoft,marginBottom:12,lineHeight:1.6}}>Paste JSON output from Tool 1 (Indicator Quality Reviewer) or any array of indicator objects. Fields are mapped to the Indicator Register.</p>
+        <Modal title="Import Indicator Data" onClose={() => { setModal(null); setImportErr(''); }}>
+          <p style={{fontSize:12,color:C.inkSoft,marginBottom:12,lineHeight:1.6}}>Paste data exported from the Indicator Quality Reviewer, or any array of indicator objects in JSON format. All matching fields will be mapped to the register.</p>
           <textarea value={importText} onChange={e => setImportText(e.target.value)} placeholder='[{"name":"...","definition":"...","unit":"..."}]'
             style={{width:'100%',height:150,padding:'10px 12px',borderRadius:6,border:`1.5px solid ${importErr?C.red:C.border}`,fontFamily:"'IBM Plex Mono',monospace",fontSize:12,resize:'vertical',outline:'none'}}
           />
           {importErr && <div style={{color:C.red,fontSize:12,marginTop:6}}>⚠ {importErr}</div>}
           <div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:14}}>
             <button onClick={() => { setModal(null); setImportErr(''); }} style={{background:'none',border:`1px solid ${C.border}`,borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:13,color:C.inkSoft}}>Cancel</button>
-            <button onClick={handleJsonImport} style={{background:C.ochre,color:'#fff',border:'none',borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:13,fontWeight:600}}>Import</button>
+            <button onClick={handleJsonImport} style={{background:C.ochre,color:'#fff',border:'none',borderRadius:6,padding:'7px 16px',cursor:'pointer',fontSize:13,fontWeight:600}}>Import Data</button>
           </div>
         </Modal>
       )}
